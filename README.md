@@ -25,13 +25,26 @@ It does not directly support external libraries, but can handle CC65 calling con
 
 # Usage and positioning
 
+Goals:
+
+* create, edit, run, experiment with C code on the machine
+* interactive development, playing
+* fast on-device interaction
+* make it fun!
+
+Non-Goals:
+
+* it's probably not going to be a full compatible compiler with all the bells and whistles
+* don't expect to take any big C-code and compile it, there are cross-compilers excelling at that
+* no C++, LOL
+
 Why another compiler? Well, a C-compiler is a challange! Nethertheless for 6502. What's missing is the interactivety of BASIC or the feeling of Turbo Pascal that revolutionized programming on the nearly equivalent Z80, at least contemporary.
 
 So, the goal is to be interactive, and have a decent integrated compiler, and editor and to be able to run the programs directly, all on the machine without loading or switching to other programs.
 
 `D-flat` is an amazing language, providing a structured basic, built-in editor ala BASIC with line-numbers, but it's much faster than typical BASICs. But it's not C...
 
-For C, we have the excellent `CC65` that provides a very standards compliant cross-compiling compiler. It gets flack because of generated (bloated) slow code, sometimes a bit unfair. Other realistic good alternatives are `SBCC`, `VBCC` (limited licence), and finally `Oscar64`. For ORIC ATMOS, the "outdated" `RCC`, based on early `LCC`. It is well supported in the ORIC community but voices say "slow". It is also difficult to use under linux.
+For C, we have the excellent `CC65` that provides a very standards compliant cross-compiling compiler. It gets flack because of generated (bloated) slow code, sometimes a bit unfair, it's very reliable and *correct*. Other realistic good alternatives are `SBCC`, `VBCC` (limited licence), and finally `Oscar64` which seems like a rising super-star! For ORIC ATMOS, the "outdated" `RCC`, based on early `LCC`, part of OSDK is still used. It is well supported in the ORIC community but voices say "slow", and "big" coe. It is also difficult to use under linux.
 
 As we can C, sorry see, interactive alternatives are scarce.
 
