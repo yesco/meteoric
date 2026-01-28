@@ -15,9 +15,9 @@ It has restrictions and limitations. It does *not*, however, generate ASM code t
 
 # The C-language
 
-MeteoriC is a subset of the C programming language as defined by Kernighan and Richie in the book, “The C Programming Language”, published by Prentice-Hall updated with latest langauge (ANSI-style) syntax.
+MeteoriC is a subset of the C programming language as defined by Kernighan and Richie in the book, “The C Programming Language”, published by Prentice-Hall updated with latest language (ANSI-style) syntax.
 
-Generally, the idea is that a legal C-program should be compilable, assuming it is within the supported subset. Where there are devications, they have been noted.
+Generally, the idea is that a legal C-program should be compilable, assuming it is within the supported subset. Where there are devications, they have been noted, or may be reported. `KISS` - Keep It SSimple.
 
 MeteoriC comes with an "optional" standard library, basically covering everything from libc etc, that makes sense. Depending on how much of the library code that is enabled, it may use up to about 600 extra bytes. However, binaries can be compiled in "libraryless" mode, where only the runtime library is included (~100 bytes). This also depends on if the code uses the ORIC-ATMOS ROM routines, or not. There are thoughts of being able to generate ROMmmable code to replace, or provide an alternative to the BASIC ROM.
 
@@ -69,7 +69,6 @@ Here is an overview of features supported:
 # Libaries
 
 One of the benefits of C is the standard libaries, like "`libc`", see the `User manual` section at the end.
-
 
 # Features currently not supported
 
@@ -193,11 +192,11 @@ More info coming...
 
 # IDE User manual
 
-The MeteoriC program "lives" in the editor. It allows for fullscreen editing and compilation (currently: ORIC ATMOS).
+The MeteoriC program "lives" in the editor. It allows for full-screen editing and compilation (currently: ORIC ATMOS).
 
-At any point the built in help can be viewed by:
+At any point the built-in help can be viewed by:
 ```
-^Help summary (navigation, lang, symbols)
+^Help summary (editing, navigation, lang, symbols)
 ```
 
 ## Editing
@@ -230,10 +229,11 @@ Apart from the normal backspace and ^Delete (forward) key, there is
 `ESC` - toggles between editing and command mode
 (ctrl functions available all the time through)
 
-In the command mode the folowing commands exists, they can be used with single letter, or by combination CTRL-letter, the latter works inside the editor too.
+In the command mode the folowing commands exists, they can be used with single letter, or by combination CTRL-letter, the latter works inside the editor, too.
+
 
 ```
-^Compile buffer
+^Compile program
 ^Run program
 ```
 
