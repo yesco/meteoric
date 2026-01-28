@@ -23,7 +23,40 @@ It does not directly support external libraries, but can handle CC65 calling con
 
 # Supported Subset
 
+* the datatype `word` (unsigned int, 16-bit)
+* it can be used as `char*` in `*v=...;` and `3+*v`
+* operators: `+ - & | ^ *2 /2 << >>`
+* math: `*` (coming `/ %`) (requires "mathlibrary")
+* `+= -= &= |= ^= <<= >>=`
+* optional inline ASM;
+* functions with parameters (locals coming)
+* `if (...) ...` with optinal `else ...`
+* `{ block(); stmts(); }` (no define local vars)
+* `do ... while(...);` - most efficient/small
+* `while(...) ...` - ok
+* `for(...; ...; ...) ...` - expensive and big/slow
+* `return;` or `return ...;`
+* no linking neeeded
 
 # Currently Not Supported
 
+* `#define ...` or `#ifdef ...`
+* `#include ....`
+*  `break; continue;`
+*  no separate compilation
+* `long`
+* `signed int`
+* `float double`
+* `struct union` and bit fields
+* multi-dimensional arrays
+* `switch statement`
+* `&& !!`
 
+It may seem restrictive, but operators have been choosen for ease of implementation as well as efficiency.
+
+Still, the supported subset should be enough to implement the compiler itself. However, for space and speed reasons MeteoriC compiler is written purely in assembly to give the user the most available memory.
+  
+# Limitations
+
+* preceedence
+* 
