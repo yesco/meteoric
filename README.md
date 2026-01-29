@@ -320,6 +320,8 @@ During compilation a series of '.' and ',' are outputted, partly to know it's al
 
 When the compiled program is running the keyboard/interrupts are disabled. To `break` you can use the `NMI-button` on ORIC. It's inconveniently located under the machine, LOL. If you have *LOCI* or other external storage devices they may have more convenient button.
 
+`NMI` can also be used to reset the compiler. It resets the stack to "zero" and returns to the command mode.
+
 ### Compilation errors
 
 When there is a compilation error, typically there is no "human readble" error message. Instead, the code is printed till and beyond the error, the point where the error occured is marked with red background and white text. This is as far as it got. Recursive descent parsers are known to have trouble generating clear indicates of what went wrong, as they typically backtrack. But I found this to be useabal information. Don't forget to red the code before and after.
