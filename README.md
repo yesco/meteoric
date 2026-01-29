@@ -5,13 +5,24 @@
 MeteoriC is a *minimalist* C-compiler for running *on-device* 6502. Like Turbo Pascal for CP/M 8080 computers, it includes an editor, compiler, and ability to run the program from inside the environment. Errors are indicated in the editor allowing for fast turn-around during development.
 
 
+# Alpha preview
+
+Known limitations:
+
+* can only view/edit one page of code (no scroll)
+* DEMO version with examples have limited memory
+* Arrays, not really. Use xmalloc,peek,poke,deek,doke!
+* ORIC ATMOS 48K required
+
 # Origin
 
-It's written from scratch starting August 2025 by Jonas S Karlsson, in 6502 assembly using CA65. The idea about a minimal compiler is similar to [Small-C](https://en.wikipedia.org/wiki/Small-C), and 
-[C/65](https://atariwiki.org/wiki/attach/C65Manual-Text/c65manual.pdf), and others.
+MeteoriC is written from scratch starting August 2025 by Jonas S Karlsson, in 6502 assembly using CA65. The idea about a minimal compiler is similar to [Small-C](https://en.wikipedia.org/wiki/Small-C), and [C/65](https://atariwiki.org/wiki/attach/C65Manual-Text/c65manual.pdf), and others.
 
-It has restrictions and limitations. It does *not*, however, generate ASM code that needs to be assembled, but instead directly generates relevant binary machine code, ready to run, in memory.
+It is probably the smallest C-compiler (ever) written for 6502, owing partly to its data-driven architecture. See more about it in the implementation section.
 
+MeteoriC has restrictions and limitations. It does *not*, however, generate ASM code that needs to be assembled, but instead directly generates relevant binary machine code, ready to run, in memory.
+
+The compiler has been preceeded by various 6502 experiments as well as interpreters and compilers written in C. One variant was prototyping compiling lisp-code directly to 6502 machine code.
 
 # The C-language
 
@@ -465,19 +476,24 @@ FILE:
   ; creadsync() - TODO
 ```
 
-## Library less
+## Library-less
 
-To incure as little storage overhead as possible, the compiler can, on ORIC ATMOS using only the BASIC ROM dispense with overhead of the
-"fancy BIOS", that "corrects" some issues.
+The library is useful, but adds up to about 600 bytes if fully included. It is possibly to compile programs using some known libary functions without incuring any library overhead!
+
+Thits is known as library-less. The compiler is then instructed to generate inline code instead. This is possible for printing a string, memcpy() and few other basic operations, like isalpha().
+
+On ORIC ATMOS, and other computers,the BASIC ROM can be used as a "BIOS" of sorts. It may loose some functionality like '\n' when embedded in a string that would be expected to 
+
+To incure as little storage overhead as possible, the compiler can, on ORIC ATMOS using only the BASIC ROM dispense with overhead of the "fancy BIOS", that "corrects" some issues.
 
 In this mode, the compiler maps some common simple ideoms to
 direct code using the BASIC ROM.
 
 ```
 INPUT & OUTPUT
-- putchar(' ')
-- putchar('\n')
-- putchar(X)               // \n doesn't work!
+- putchar(' ')             // (jsr spc)
+- putchar('\n')            // works! (jsr nl)
+- putchar(X)               // \n does not do CR LF
 - putz(S)                  // ONLY putz not puts
   (no printing numbers unsigned/decimal/hex)
 ```
@@ -486,18 +502,21 @@ INPUT & OUTPUT
 MEMORY STUFF
 - peek(A) -> byte
 - poke(A, byte)
-- deek(A) -> word          // ORICism!
-- doke(A, word)
-- memcpy(CONST, CONST, const)  // const<256 => 14 B
+- deek(A) -> word          // ORICism! (word read)
+- doke(A, word)            // ORICism! (word write)
+- memcpy(CONST, CONST, const)  // const<256 => 14 B!
 - memcpy(X,X,X)            // inline    => 23 B
 ```
 
+These basic functions from <ctype.h> can be generated inline:
 ```
 CTYPE! (minimal)
 - isdigit()
 - isalpha()
 - isspace()
 ```
+
+A very simple malloc is inlined, basically just giving out mememory directly after the program. No checks, and free() doesn't do anything/reclaim memory.
 
 ```
 STDLIB
@@ -507,3 +526,5 @@ STDLIB
 NOTE: will most likely crash the IDE
       (TODO:? use for stand alone code generated)
 ```
+
+On ORIC ATMOS, all ORIC API functions are availble without any extra cost.
