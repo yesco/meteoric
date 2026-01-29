@@ -11,8 +11,11 @@ Known limitations:
 
 * can only view/edit one page of code (no scroll)
 * DEMO version with examples have limited memory
+* very little error checking
 * Arrays, not really. Use xmalloc,peek,poke,deek,doke!
 * ORIC ATMOS 48K required
+* editing is using the HIRES memory as a buffer, if switching to hires mode, and back, the edit buffer is crapped. CTRL-Z re-initializes it with the default startup example.
+
 
 # Origin
 
@@ -80,6 +83,7 @@ Here is an overview of features supported:
 * `x= 42;` assignement
 * `a=b=c= 42;` multi variable assignments
 * `+= -= &= |= ^= <<= >>= *=2; /=2;`
+* comparisons: '==' and '<' only
 * functions with up to 8 parameters (locals coming)
 * `if (...) ...` with optinal `else ...`
 * `{ block(); stmts(); }`
@@ -90,27 +94,35 @@ Here is an overview of features supported:
 * integrated editor jumping to error
 * optional inline ASM; (takes extra 2KB)
 
-# Libaries
+# Libraries
 
 One of the benefits of C is the standard libaries, like "`libc`", see the `User manual` section at the end.
 
 # Features currently not supported
 
-In the tradtion of `Small-C`, `C/65`, `KickC`, and others the 
+In the tradtion of `Small-C`, `C/65`, `KickC`, and others the compiler supports a narrow, but useful subset of C.
+
+Here is a list of what is not (currently) supported:
 
 * `#define ...` or `#ifdef ...` (TODO: limited)
 * `#include ....` (TODO: use for choosing library usage)
 *  `break; continue;` (TODO)
 * `extern` - separate compilation (TODO: dynamic libraries!)
 * `long`
-* `signed int` (TODO: considering)
+* `int` `signed int` (TODO: considering, it's slower/more code)
 * `float double`
-* `struct union` (TODO: thinking about it)
-* and bit fields
-* multi-dimensional arrays
+* `struct union` (TODO: thinking about struct)
+* bit fields (nono)
+* arrays (TODO: reenable declaration, [])
+  - use xmalloc to get memory pointer/address
+  - peek/poke for accessing bytes (efficiently compiled!)
+  - deek/doke for word access (also efficient inlined)
+* multi-dimensional arrays (see above)
 * `switch statement` (TODO: hmmm)
-* `...? ...: ...` (TODO: will come)
+* `...? ...: ...` (for now use `if`, TODO: will come)
+* correct preceedence, keep expressions short!
 * `&& !!` (TODO: yeah, will do, maybe `...? ...: ...` first)
+* no parentheisization supported `(a+3)*b` - nono!
 
 It may seem restrictive, but operators have been choosen for ease of implementation as well as efficiency.
 
@@ -118,10 +130,14 @@ Still, the supported subset should be enough to implement the compiler itself. H
   
 # Limitations
 
-* preceedence not supported; evaluation (at the moment) is LEFT-to-RIGHT: `3+4*2`=> `14`!
+* if it looks like C it'll "eat it" and generate some code
+* does not (currently) check arguments number/types of functions
+* no error messages, it'll show how far it got
+* preceedence not supported; evaluation (at the moment) is mostly LEFT-to-RIGHT: `3+4*2`=> `14`!
+  - use simple expressions, in the right order: `4*2+3` works
+  - `<' and `==` uses: `expr OP expr` so a "bit better"
 * expressions support limited right-hand side data
 <br>`COMPLEX op simple op simple ...`
-* no paresentitaion supported
 * `COMPLEX` can be 
   - `variable`
   - `*variable` assumed to be pointer to char
