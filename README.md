@@ -205,7 +205,7 @@ MeteoriC-compiler is a recursive-descent interpretive parser. This means it's da
 
 This is maybe an unusual design, however, it minimizes the amount of assembly code to be written. The rules are expressed in a limited variant of `BNF`.
 
-In principle it can be repurposed to parse many different languages, however, it's specifically targetted for 6502. It's currently about 1865 bytes. The basic rules, are currently about 6900 bytes, of which 1500 are special *optimizing* rules. These decrease code size and improve speed by providing specialized rules for common edge cases. They are specialized for small byte size integer constants; specific operators; or even special values, like 0.
+In principle it can be repurposed to parse many different languages, however, it's specifically targetted for 6502. It's currently about 1865 bytes. The basic rules are currently about 6900 bytes, of which 1500 bytes are special *optimizing* rules. These decrease code size and improve speed by providing specialized rules for common edge cases. They are specialized for small byte size integer constants; specific operators; or even special values, like 0. They make the code about 20% smaller and faster.
 
 ## Generated code
 
@@ -273,8 +273,12 @@ In the command mode the folowing commands exists, they can be used with single l
 
 
 ```
-^Compile program
-^Run program
+? - mini help
+h - bigger help
+c - ^Compile program (CTRL-C)
+r - ^Run program     (CTRL-R)
+e - e
+
 ```
 
 TODO:
@@ -287,9 +291,9 @@ TODO:
 ## Experimental features
 
 ```
-^V info of compiler/program/libraries
-^Q disasm program (sensitive)
-^X extended
+v - ^Vinfo of compiler/program/libraries (CTRL-V)
+q - ^Q disasm compiled program           (CTRL-Q)
+x - ^X extended functions                (CTRL-X)
 
 (^Garnish program (pretty print) - not accessible)
 ```
@@ -311,6 +315,10 @@ At any time, the compile status is shown at the upper right corner:
 The compiler can be invoked from the editor with `^Compile` (CTRL-C). If it's green the compiled program can be run with `^Run` (CTRL-R).
 
 During compilation a series of '.' and ',' are outputted, partly to know it's alive. '.' indicates a new statement, and ',' an op processed. Aproximately.
+
+## Stopping/Reset
+
+When the compiled program is running the keyboard/interrupts are disabled. To `break` you can use the `NMI-button` on ORIC. It's inconveniently located under the machine, LOL. If you have *LOCI* or other external storage devices they may have more convenient button.
 
 ### Compilation errors
 
