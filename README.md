@@ -12,9 +12,11 @@ Known limitations:
 * can only view/edit one page of code (no scroll)
 * DEMO version with examples have limited memory
 * very little error checking
-* Arrays, not really. Use xmalloc,peek,poke,deek,doke!
-* ORIC ATMOS 48K required
+* it may hang, it may crash, or give wrong result! - please report with examples!
+* Arrays, not really. Use `xmalloc,peek,poke,deek,doke`!
+* `ORIC ATMOS 48K` required
 * editing is using the HIRES memory as a buffer, if switching to hires mode, and back, the edit buffer is crapped. CTRL-Z re-initializes it with the default startup example.
+
 
 
 # Origin
@@ -23,9 +25,11 @@ MeteoriC is written from scratch starting August 2025 by Jonas S Karlsson, in 65
 
 It is probably the smallest C-compiler (ever) written for 6502, owing partly to its data-driven architecture. See more about it in the implementation section.
 
-MeteoriC has restrictions and limitations. It does *not*, however, generate ASM code that needs to be assembled, but instead directly generates relevant binary machine code, ready to run, in memory.
+MeteoriC has restrictions and limitations. It does *not*, however, generate ASM code that needs to be assembled, but instead directly generates relevant binary machine code, ready to run, in memory. This is similar to what `Turbo Pascal` did on `CP/M`.
 
 The compiler has been preceeded by various 6502 experiments as well as interpreters and compilers written in C. One variant was prototyping compiling lisp-code directly to 6502 machine code.
+
+
 
 # The C-language
 
@@ -75,28 +79,40 @@ The idea is that code that is legal C and using supported features under the lim
 
 Here is an overview of features supported:
 
+* integrated IDE
+  - built-in help screens
+  - list symbols recognized (library functions)
+  - reasonably fast compiler (nearly 1000 "lines"/minute?)
+  - integrated full-screen editor
+  - editor can positions cursor directly at/near error
+  - integrated disassembler
+  - optional inline ASM; (prototype, takes extra 2KB)
 * the datatype `word` (unsigned int, 16-bit)
-* it can be used as `char*` in `*v=...;` and `3+*v`
+* `*r= *a+3;` for `char*` access (assign, read)
+* `xmalloc(bytes)` - to allocate arrays... (decl comes)
+* `peek(a) poke(a,v)` - alternative byte memory access
+* `deek(a) doke(a,v)` - word value access in memory (`int*`)
 * unlimted long names `word a, b, abba, foo_bar32, _x;`
-* operators: `+ - & | ^ *2 /2 << >>`
-* math: `*` (coming `/ %`) (requires "mathlibrary")
+* operators: `+ - & | ^ *2 /2 << >>` taking `v` or `const` as right hand parameter
+* math: `*` (coming `/ %`) (using "mathlibrary")
 * `x= 42;` assignement
 * `a=b=c= 42;` multi variable assignments
-* `+= -= &= |= ^= <<= >>= *=2; /=2;`
-* comparisons: '==' and '<' only
+* `+= -= &= |= ^= <<= >>= *=2; /=2;` all working with constants or variables, even the shifting `3<<n`
+* comparisons: '== < >=' (more to come...)
 * functions with up to 8 parameters (locals coming)
+* recursive functions!
 * `if (...) ...` with optinal `else ...`
 * `{ block(); stmts(); }`
 * `do ... while(...);` - most efficient/small
 * `while(...) ...` - ok
 * `for(...; ...; ...) ...` - expensive and big/slow
 * `return;` or `return ...;`
-* integrated editor jumping to error
-* optional inline ASM; (takes extra 2KB)
 
 # Libraries
 
 One of the benefits of C is the standard libaries, like "`libc`", see the `User manual` section at the end.
+
+
 
 # Features currently not supported
 
@@ -130,13 +146,13 @@ Still, the supported subset should be enough to implement the compiler itself. H
   
 # Limitations
 
-* if it looks like C it'll "eat it" and generate some code
+* if it looks like C it might "eat it" and generate some code
 * does not (currently) check arguments number/types of functions
 * no error messages, it'll show how far it got
 * preceedence not supported; evaluation (at the moment) is mostly LEFT-to-RIGHT: `3+4*2`=> `14`!
   - use simple expressions, in the right order: `4*2+3` works
   - `<' and `==` uses: `expr OP expr` so a "bit better"
-* expressions support limited right-hand side data
+* operators only support limited right-hand side data
 <br>`COMPLEX op simple op simple ...`
 * `COMPLEX` can be 
   - `variable`
@@ -153,7 +169,7 @@ Still, the supported subset should be enough to implement the compiler itself. H
 * assignments
   - are not expressions 
   - `var += simple;` with most operators
-
+* (recursive) function calls have limited stack space, it uses the hardware stack, in the future non-recursive functions will have an extreemly fast `_regcall` implementation.
 
 
 # Efficiency
@@ -165,26 +181,39 @@ The following forms are exceptionally efficient and optimized on 6502.
 Inc &amp; dec operators:
 * `++i; i++;` - same cost (6 bytes)!
 * `--i; i--;` - same cost (+2 bytes cmp ++)
-* in an expression:
-  - `++i +1` `i++ +2` `i-- +2` all same cost (+ 10 B for the ++ --)
-  - `--i +3` worst! (+ 2 bytes)
+
+In an expression:
+* `++i +1` `i++ +2` `i-- +2` all same cost (+ 10 B for the ++ --)
+* `--i +3` worst! (+ 2 bytes)
 
 Shifting:
 * `a<<= 1;` - 2 instructions!
 * `a>>= 1;` - same
+* `a<<= 2;` and `>>=` all the way up to 7 are inlined &amp; fast
+
+Others:
+* `BIGGER * smaller` - faster
+* `... op CONST` - probly better than the other way around
+* `... op const` - some times ops optimized for 0..255
+* `... >= CONST` -  9 bytes!
+* `... <  CONST` - 11 bytes
+* `... <  ...`   - an extra +10 bytes
+* `... >= ...`   - an extra + 10 bytes
 
 if statements:
 * `if (v==0) ...` - most efficient
 * `if (v==...) ...` - 13 bytes better than `if (...==v) ...`
 * `if (v&42) ...` - fewer bytes for small constant
 
-while statements:
+while statements (better to worse):
 * `while(v) ...` - fast
 * `while(v==42) ...` 
 * `while(v==x) ...` 
-* `while(v<42) ...` 
-* `while(...<...) ...` - expensive overhead
-* `while(...==...) ...` - expensive overhead
+* `while(v<42) ...`
+* `while(v==...`) ...
+* `while(v<...`) ...
+* `while(...==...) ...` - worst: expensive+bigger
+* `while(...<...) ...` - worst: expensive+bigger
 
 do...while:
 * `do ... while(v);` - small and FASTEST
@@ -209,15 +238,34 @@ In principle it can be repurposed to parse many different languages, however, it
 
 ## Generated code
 
+The binary code is generated directly based on templates which come with each rule. Some rules are more specific and generates better code for specific cases.
+
+### Calling convention
+
+The codegenerator uses a few different code-calling conventions internally:
+* direct calling ATMOS BASIC ROM using `jsr $addr`
+* ORIC ATMOS grahics/music routines fixed parameter passing calls
+* recursion safe function calling - this employes a totally new calling convention
+* FUTURE: automatic zero page parameter passing
+
 ## Optimization Limitations
 
-The compiler comes with inherent limitations, these are mostly stemming from limited memory and speed.
+The compiler on this platform comes with an inherent limitations;  these are mostly stemming from limited memory and speed.
 
 Great compilers run on bigger systems and does whole-program analyzis; this allows them to totally restructure and specialize the code; functions called once are inlined, parameter passing removed if only passing constants; common subexpression elimination, etc.
+
+In general, this is just not applicable on the 6502 itself. Instead we employ rules, as previouisly mentioned.
+
+These rules captures common patterns in code, but ultimately can only optimize those that are easy to be identified, i.e. obvious ones.
+
+But I'm gonno try to push it as far as it can go!
 
 ## ...
 
 More info coming...
+
+
+
 
 # Future/Planned
 
@@ -230,6 +278,9 @@ More info coming...
 * operating system? LOL
 * user input?
 
+
+
+
 # IDE User manual
 
 The MeteoriC program "lives" in the editor. It allows for full-screen editing and compilation (currently: ORIC ATMOS).
@@ -238,6 +289,7 @@ At any point the built-in help can be viewed by:
 ```
 ^Help summary (editing, navigation, lang, symbols)
 ```
+
 
 ## Editing
 
@@ -288,6 +340,7 @@ TODO:
  (^Xtras menu)
 ```
 
+
 ## Experimental features
 
 ```
@@ -298,11 +351,13 @@ x - ^X extended functions                (CTRL-X)
 (^Garnish program (pretty print) - not accessible)
 ```
 
+
 ## TODO: 
 
 ```
 Not yet: ^Search ^J ^Killine ^Machinecode(^Q)
 ```
+
 
 ## Compilation and Running
 
@@ -316,11 +371,13 @@ The compiler can be invoked from the editor with `^Compile` (CTRL-C). If it's gr
 
 During compilation a series of '.' and ',' are outputted, partly to know it's alive. '.' indicates a new statement, and ',' an op processed. Aproximately.
 
+
 ## Stopping/Reset
 
 When the compiled program is running the keyboard/interrupts are disabled. To `break` you can use the `NMI-button` on ORIC. It's inconveniently located under the machine, LOL. If you have *LOCI* or other external storage devices they may have more convenient button.
 
 `NMI` can also be used to reset the compiler. It resets the stack to "zero" and returns to the command mode.
+
 
 ### Compilation errors
 
@@ -332,6 +389,9 @@ Un-defined variables will be high-lighted, that's easy. However, missing things 
 
 If there is an error a newline '%' letter error-code is printed, this error code is most likely a compiler code/rule error. Please report! Screenshot and code that you're compiling.
 
+
+
+
 # Libraries
 
 As mentioned, one of the benefits of C is the all present `stdlib` standard libraries. These are rather minimal expectations and were maybe at the time a giant step forward. Today, they may be consider minimal. They are basic but very handy.
@@ -341,6 +401,7 @@ As mentioned, one of the benefits of C is the all present `stdlib` standard libr
 In the tradition of `SectorLisp`, `SectorForth`, etc, we assume a prevalent always present `BIOS`. The basic routines would be `putchar(char` and `getchar()`. Putchar has the additional expectation to make a newline with the `'\n'` char, which on most "terminals" involes the sequence `CR LF`. For ORIC I've added a `TAB` (`'\t'`).
 
 These take up anything from 0 bytes (library less) to 80ish bytes, and maybe 300 bytes for ROM-less.
+
 
 ## stdlib
 
@@ -368,6 +429,7 @@ There are 8 libraries relevant to ORIC/6502
 - libmath.h :  41 B - * (multiplication) TODO: div/mod
 ```
 
+
 ## #include <stdio.h>
 
 ```
@@ -385,10 +447,11 @@ puts(X);                // == puts(X); (string+newwline)
 printf("%d", X);             // == putd
 ```
 
+
 ## # #include <ctype.h>
 
 ```
-Inlineable (if even if LIBRARYLESS)
+Inlineable (if even if LIBRARYLESS!)
 - isdigit
 - isalpha
 - isspace
@@ -406,18 +469,20 @@ These are "all-or-nothing"
 
 ```
 
+
 ## #include <stdlib.h>
 
 Somewhat working, lol.
 
-TOOD: implement!
+TODO: implement for real!
 
 ```
-xmalloc(n) - give error if not have memory
+xmalloc(n) - allocate; give error if not have memory
 malloc(n)  - return 0 if not have enough (CHECK!)
-realloc(p)
-free(p)
+realloc(p) - hmmmm (TODO):
+free(p)    - (TODO): maybe does nothing for now!
 ``
+
 
 ## #include <string.h>
 
@@ -434,6 +499,7 @@ strstr - TODO:
 
 ```
 
+
 == #include <libmath.h>
 
 For `int`egers, and `word` there aren't many functions that are defined. However, `*` multiply is implemented in the library.
@@ -444,6 +510,7 @@ For `int`egers, and `word` there aren't many functions that are defined. However
 % - mod      - TODO:
 ```
 
+
 ## Other libraries for consideration
 
 ```
@@ -453,6 +520,7 @@ For `int`egers, and `word` there aren't many functions that are defined. However
 - system.h  :       - nah (exec? maybe need an OS)
 - unistd.h  :       - nah (complicated file system stuff)
 ```
+
 
 ## ORIC ATMOS API
 
@@ -490,7 +558,7 @@ SOUND:
   tick(), tock()
 ```
   
-NOt done
+Not done
 
 ```
 FILE:
@@ -501,6 +569,7 @@ FILE:
   ; cwritehdr() - TODO
   ; creadsync() - TODO
 ```
+
 
 ## Library-less
 
@@ -542,6 +611,7 @@ CTYPE! (minimal)
 - isspace()
 ```
 
+
 A very simple malloc is inlined, basically just giving out mememory directly after the program. No checks, and free() doesn't do anything/reclaim memory.
 
 ```
@@ -554,3 +624,8 @@ NOTE: will most likely crash the IDE
 ```
 
 On ORIC ATMOS, all ORIC API functions are availble without any extra cost.
+
+
+
+
+# That's it folks!
