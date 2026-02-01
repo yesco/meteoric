@@ -432,7 +432,15 @@ There are 8 libraries relevant to ORIC/6502
 
 ## #include <stdio.h>
 
+
 ```
+getchar()               // returns char from keyboard
+putchar(c);             // 
+
+; getline(&buffer,&len,stdio); // return count bytes TODO:
+; char* readline(char* prompt); // TODO:
+; char* fgets(char* buffer, word size, stdin)  // TODO:
+
 PRINTF SUPPORT - nah, not yet
 
 However, these works!
