@@ -651,15 +651,23 @@ If no arguments are given it enters interactive command mode. Currently, it's li
 
 ```
 Usage: ./mc [-f filename] [-c] [-r[times]] [filename ...]
+
 filename
       If a filename is given without
       options, it's loaded, compiled,
       and run once.
         Several files can be processed.
+
 -f filename
        Loads a file as input to buffer.
+
 -c     Compiles current buffer.
+-q     Disasm of program.
 -r[N]  Runs program N times, default 1.
+
+-pv    Print variables info
+-pV    (NEW)Print variables values
+-pe    Print env debug info (pretty print bytes of vars)
 ```
 
 
