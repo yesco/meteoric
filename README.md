@@ -335,9 +335,10 @@ e - e
 
 TODO:
 ```
- (^Write file)
- (^Load files/example)
- (^Xtras menu)
+b - ^Buffers: show examples (same as l - ^L)
+f - ^Files open from tape
+s - ^Save current file to tape
+w - ^Write/save new file as (new name)
 ```
 
 
@@ -634,6 +635,32 @@ NOTE: will most likely crash the IDE
 On ORIC ATMOS, all ORIC API functions are availble without any extra cost.
 
 
+
+# Command line version (sim65 only)
+
+The sim65 compiled version is meant for testing and faster development. It currently doesn't have an editor.
+
+* TODO: ansi/vt100 editor
+* Using run wrapper `./oric-terminal` translates ORIC color codes
+* TODO: Interactive commands (mapping bad)
+* command line options
+
+## Commpand line options
+
+If no arguments are given it enters interactive command mode. Currently, it's limited, and cumbersome (TODO: redesign).
+
+```
+Usage: ./mc [-f filename] [-c] [-r[times]] [filename ...]
+filename
+      If a filename is given without
+      options, it's loaded, compiled,
+      and run once.
+        Several files can be processed.
+-f filename
+       Loads a file as input to buffer.
+-c     Compiles current buffer.
+-r[N]  Runs program N times, default 1.
+```
 
 
 # That's it folks!
