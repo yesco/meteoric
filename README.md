@@ -326,19 +326,23 @@ In the command mode the folowing commands exists, they can be used with single l
 
 ```
 ? - mini help
-h - bigger help
+h - bigger help      (CTRL-H)
 c - ^Compile program (CTRL-C)
 r - ^Run program     (CTRL-R)
-e - e
-
+e - error
+x - e^Xtras
 ```
 
-TODO:
+Extras menu:
 ```
-b - ^Buffers: show examples (same as l - ^L)
-f - ^Files open from tape
-s - ^Save current file to tape
+b - ^Buffers: show examples    (CTRL-X CTRL-B)
+f - ^Files open from tape      (CTRL-X CTRL-F)
+
+(not working? unverified)
+
+s - ^Save current file to tape (CTRL-X CTRL-S)
 w - ^Write/save new file as (new name)
+                               (CTRL-X CTRL-W)
 ```
 
 
@@ -346,6 +350,7 @@ w - ^Write/save new file as (new name)
 
 ```
 v - ^Vinfo of compiler/program/libraries (CTRL-V)
+o - ^Out - print variables               (CTRL-O)
 q - ^Q disasm compiled program           (CTRL-Q)
 x - ^X extended functions                (CTRL-X)
 
@@ -356,7 +361,7 @@ x - ^X extended functions                (CTRL-X)
 ## TODO: 
 
 ```
-Not yet: ^Search ^J ^Killine ^Machinecode(^Q)
+Not yet: ^Search ^J ^Machinecode(^Q)
 ```
 
 
