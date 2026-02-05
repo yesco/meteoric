@@ -13,9 +13,10 @@ Known limitations:
 * DEMO version with examples have limited memory
 * very little error checking
 * it may hang, it may crash, or give wrong result! - please report with examples!
-* Arrays, not really. Use `xmalloc,peek,poke,deek,doke`!
+* Arrays, hmmm, char array, but you can use `xmalloc,peek,poke,deek,doke`!
 * `ORIC ATMOS 48K` required
-* editing is using the HIRES memory as a buffer, if switching to hires mode, and back, the edit buffer is crapped. CTRL-Z re-initializes it with the default startup example.
+* editing is using the HIRES memory as a buffer, if switching to hires mode, and back, the edit buffer is crapped. CTRL-Z re-initializes it with the default startup example. (TODO: sve/restore)
+* casette saving and loaded implemented, but not sure if it works... (TODO: disk)
 
 
 
@@ -33,7 +34,9 @@ The compiler has been preceeded by various 6502 experiments as well as interpret
 
 # The C-language
 
-MeteoriC is a subset of the C programming language as defined by Kernighan and Richie in the book, “The C Programming Language”, published by Prentice-Hall updated with latest language (ANSI-style) syntax.
+MeteoriC is a subset of the C programming language as defined by Kernighan and Richie in the excellent book, “The C Programming Language” (K&amp;R2), published by Prentice-Hall updated with ANSI-style syntax. It's available online for free at [https://github.com/auspbro/ebook-c/raw/refs/heads/master/The.C.Programming.Language.2Nd.Ed%20Prentice.Hall.Brian.W.Kernighan.and.Dennis.M.Ritchie..pdf](The C Programming Language).
+
+This manual that you're reading isn't a guide for C-programming. The user is assumed to know C. Be aware that MeteoriC isn't "fully standard-compliant, and may allow things which isn't allowed in standard C.
 
 Generally, the idea is that a legal C-program should be compilable, assuming it is within the supported subset. Where there are devications, they have been noted, or may be reported. `KISS` - Keep It SSimple.
 
@@ -70,6 +73,42 @@ We can mention that there is a lisp-interpreter, only binary available for ORIC 
 
 So, here comes the `MeteoriC`-compiler!
 
+
+# First and example
+
+Too much talking and not enough action, or code.
+
+```
+01: // A simple program that prints A-Z\n
+02: // in mamy different ways
+03: word c;
+04: word main() {
+05:   puts("ABCDEFGHIJMKLMNOPQRSTUVWXYZ");
+06:   putz("ABCDEFGHIJMKLMNOPQRSTUVWXYZ\n");
+07:   // - biggest and least efficient
+08:   for(c='A'; c<'Z'+1; ++c) putchar(c);
+09:   putchar('\n');
+10:   // - ok, ok
+11:   c= 'A'-1; while(c<'Z'+1) putchar(++c);
+12:   putchar('\n');
+13:   // - smallest and most efficient  
+14:   c= 'A'; do putchar(c++); while(c<'[');
+15:   putchar('\n');
+17:
+16:   return 4711;
+17: }
+```
+
+Notes:
+* Line 01,02: `// comments only`
+* Line 03: global variable, no local variables yet, parameters ok
+* Line 04,16: the main returns a `word` (standard C only byte), you can use this to have the IDE print the value when the program exits without using a print statement
+* Line 05: `puts` adds a newline after the string
+* Line 06: `putz` (non-standard) or standard-C: `fputs(stdout, "ABC...")` doesn't add newline
+* Line 08: `for`- loops jumps around a lot, and thus takes more space, and are slowest
+* Line 12: putchar('\n') becomes a simple `jsr nl`
+* Line 13, 14: `c<'Z'+1` is most costly than `c<'['`
+* Line 14: `do...while(...)`; generates the smallest code and is the most efficient looping construct
 
 # Supported subset
 
@@ -146,10 +185,10 @@ Still, the supported subset should be enough to implement the compiler itself. H
   
 # Limitations
 
-* if it looks like C it might "eat it" and generate some code
-* does not (currently) check arguments number/types of functions
-* no error messages, it'll show how far it got
-* preceedence not supported; evaluation (at the moment) is mostly LEFT-to-RIGHT: `3+4*2`=> `14`!
+* less strict: if it looks like C it might "eat it" and generate some code
+* does not (currently) check arguments number/types of functions (TODO:?)
+* few error messages, it'll show how far it got
+* preceedence not supported; evaluation (at the moment) is mostly LEFT-to-RIGHT: `3+4*2`=> `14`! (TODO: this will be addressed)
   - use simple expressions, in the right order: `4*2+3` works
   - `<' and `==` uses: `expr OP expr` so a "bit better"
 * operators only support limited right-hand side data
@@ -220,13 +259,23 @@ do...while:
 * `do ... while(!v);` - same same
 * `do ... while(v<42);` - ok
 * `do ... while(v<x);` - ok
+* `while(1) ...` - only 3 bytes! (`jmp $????`)
 * `while(...<...) ...` - expensive overhead +9 + 
 * `while(...==...) ...` - expensive overhead +9 + 
 
 function  calls:
 * `foo()` no parameters, no local == jsr
 
-
+arrays:
+* `arr[3]` - most efficient
+* `ptr[3]` - most efficient
+* `arr[(char)i]` - perfect: `LDA arr,x`
+* `ptr(char)i]` - perfect: `LDA arr,x`
+* `arr[(char)...]`- same...
+* `ptr[(char)...]`- same...
+* `arr[...]` - expensive, but may index any size array
+* `ptr[...]` - expensive, we will happily use any variable
+* **Notice:** we will happy use any variable value as "ptr"
 
 # Internals
 
@@ -377,12 +426,14 @@ The compiler can be invoked from the editor with `^Compile` (CTRL-C). If it's gr
 
 During compilation a series of '.' and ',' are outputted, partly to know it's alive. '.' indicates a new statement, and ',' an op processed. Aproximately.
 
+When an example is loaded, it's not yet compiled, so there is no status.
+
 
 ## Stopping/Reset
 
-When the compiled program is running the keyboard/interrupts are disabled. To `break` you can use the `NMI-button` on ORIC. It's inconveniently located under the machine, LOL. If you have *LOCI* or other external storage devices they may have more convenient button.
+When the compiled program is running the keyboard/interrupts are disabled. This makes the ORIC run as fast as it can, normally in ORIC BASIC, the keyboard is scanned continously, possily slowing down the computer by 5-10%! In our case, this means that `CTRL-C` cannot be used to break execution. Instead, to `break`, you can use the `NMI-button` on ORIC. It's *inconveniently* located under the machine, LOL. If you have *LOCI* or other external storage devices they may have more convenient reset button.
 
-`NMI` can also be used to reset the compiler. It resets the stack to "zero" and returns to the command mode.
+`NMI` can also be used to reset the compiler. It resets the stack to "zero" and returns to the command mode. The edited program remains in memory, however, if your program has run amok it may have overwritten essential data and program code.
 
 
 ### Compilation errors
@@ -391,10 +442,22 @@ When there is a compilation error, typically there is no "human readble" error m
 
 Un-defined variables will be high-lighted, that's easy. However, missing things like ';' or even "} when(...);" may not be all clear.
 
-### Other compiler %Errors
+There are no clear-text error, as they take precious space, instead a `%L` code may be printed and error displayed.
+
+**Documented errors:**
+
+* `%L` - Local(/parameter) variables cannot be used in this context. Typically, a recursive/safe function when calling other functions will have their parameters push, thus they may not have a fixed address. (TODO: maybe allow for `_register` marked functions)
+* `%E` - unexpected End of input
+* `%Z` - Zero 
+* `%I` - illegal variable TODO: maybe not used anymore?
+* `%F` - general Failure; Maybe elect new General?
+
+**Other compiler %Errors**
 
 If there is an error a newline '%' letter error-code is printed, this error code is most likely a compiler code/rule error. Please report! Screenshot and code that you're compiling.
 
+* `%S` - Stack messed up during compilation
+* `%R` - Rule error; unexpected rule popped from stack
 
 
 
