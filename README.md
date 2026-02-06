@@ -688,7 +688,6 @@ CTYPE! (minimal)
 - isspace()
 ```
 
-
 A very simple malloc is inlined, basically just giving out memory directly after the program. No checks, and free() doesn't do anything/reclaim memory.
 
 ```
@@ -701,6 +700,39 @@ NOTE: will most likely crash the IDE
 ```
 
 On ORIC ATMOS, all ORIC API functions are available without any extra cost.
+
+**TODO: conio.h** - these are not implemented yet
+```
+These are the functions available in CC65:
+2.12 conio.h
+
+bgcolor(char c)
+bordercolor(char c)
+cclear(char len)
+cclearxy(char x, char y, char len)
+cgetc()
+chline(char len)
+chlinexy(char x, char y, char len)
+clrscr()
+cprintf(char* format, ...)
+cputc(char c)
+cputcxy(char x, char y, char c)
+cputs(char* s)
+cputsxy(char x, char y, char* s)
+cursor(char on)
+cvline(char len)
+cvlinexy(char x, char y, char len)
+gotox(char x)
+gotoxy(char x, char y)
+gotoy(char y)
+kbhit()
+revers(char on)
+screensize(char* x, char* y)
+textcolor(char c)
+vcprintf(char* format, va_list *va)
+wherex()
+wherey()
+```
 
 
 
