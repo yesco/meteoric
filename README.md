@@ -146,10 +146,13 @@ Here is an overview of features supported:
 * `while(...) ...` - OK
 * `for(...; ...; ...) ...` - expensive and big/slow
 * `return;` or `return ...;`
+* no forward declaration of function (yet).
+
+
 
 # Libraries
 
-One of the benefits of C is the standard libraries, like "`libc`", see the `User manual` section at the end.
+One of the benefits of C is the standard libraries, like "`libc`". Most applicable functions have been implemented,  see the `User manual` section at the end.
 
 
 
@@ -178,6 +181,7 @@ Here is a list of what is not (currently) supported:
 * correct precedence, keep expressions short!
 * `&& !!` (TODO: yeah, will do, maybe `...? ...: ...` first)
 * no parenthesize supported `(a+3)*b` - nono!
+* `main` is special. It has to be the last funciton, and you can't recurse on it. LOL
 
 It may seem restrictive, but operators have been chosen for ease of implementation as well as efficiency.
 
