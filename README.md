@@ -13,7 +13,7 @@ Known limitations:
 * DEMO version with examples have limited memory
 * very little error checking
 * it may hang, it may crash, or give wrong result! - please report with examples!
-* Arrays, hmmm, char array, but you can use `xmalloc,peek,poke,deek,doke`!
+* Arrays, have char array, but for word* you can use `xmalloc,peek,poke,deek,doke`!
 * `ORIC ATMOS 48K` required
 * editing is using the HIRES memory as a buffer, if switching to hires mode, and back, the edit buffer is crapped. CTRL-Z re-initializes it with the default startup example. (TODO: save/restore)
 * cassette saving and loaded implemented, but not sure if it works... (TODO: disk)
@@ -126,29 +126,44 @@ Here is an overview of features supported:
   - editor can positions cursor directly at/near error
   - integrated disassembler
   - optional inline ASM; (prototype, takes extra 2KB)
-* the datatype `word` (unsigned int, 16-bit)
-* `*r= *a+3;` for `char*` access (assign, read)
-* `xmalloc(bytes)` - to allocate arrays... (decl comes)
-* `peek(a) poke(a,v)` - alternative byte memory access
-* `deek(a) doke(a,v)` - word value access in memory (`int*`)
+* the datatype `word` (unsigned int, 16-bit), see array section below for `char[]`
 * unlimited long names `word a, b, abba, foo_bar32, _x;`
+
+Expressions:
 * operators: `+ - & | ^ *2 /2 << >>` taking `v` or `const` as right hand parameter
 * logic: `&&` (not `||` yet)
 * math: `*` (coming `/ %`) (using "mathlibrary")
 * `x= 42;` assignment
 * `a=b=c= 42;` multi variable assignments
 * `+= -= &= |= ^= <<= >>= *=2; /=2;` all working with constants or variables, even the shifting `3<<n`
-* comparisons: '== < >=' (more to come...)
+* comparisons: '== < >=' (more to come... !=)
+
+Functions:
 * functions with up to 8 parameters (locals coming)
 * recursive functions!
+* no forward declaration of function (yet)
+
+Control constructs:
 * `if (...) ...` with optional `else ...`
 * `{ block(); stmts(); }`
 * `do ... while(...);` - most efficient/small
 * `while(...) ...` - OK
 * `for(...; ...; ...) ...` - expensive and big/slow
 * `return;` or `return ...;`
-* no forward declaration of function (yet).
 
+Accessing memory:
+* `*r= *a+3;` derefencing a word is equivalent to using a `char*`-style access (assign, read)
+* `xmalloc(bytes)` - to allocate dynamic memory
+* `peek(a) poke(a,v)` - alternative byte/char memory access (char*)
+* `deek(a) doke(a,v)` - word value access in memory (`int*`)
+
+Arrays:
+* `char foo[42];` declares an array
+* `char foo[42]={0};` ensures it's zeroed out
+* `char foo[]="fish";` initialize, with 5 bytes. 
+* `char foo[]={'f',105,0x73,0b1101000);` initialize, with 4 bytes. 
+* `sizeof(array)` gives size in bytes
+* `sizeof(var)` gives 2 for other vars (no char yet)
 
 
 # Libraries
@@ -172,7 +187,8 @@ Here is a list of what is not (currently) supported:
 * `float double`
 * `struct union` (TODO: thinking about struct)
 * bit fields (nono)
-* arrays (TODO: re-enable declaration, [])
+* no local arrays, make them global, or use `xmalloc()`
+* `word foo[...]=...` not supported:
   - use xmalloc to get memory pointer/address
   - peek/poke for accessing bytes (efficiently compiled!)
   - deek/doke for word access (also efficient inlined)
@@ -294,7 +310,11 @@ In principle it can be repurposed to parse many different languages, however, it
 
 The binary code is generated directly based on templates which come with each rule. Some rules are more specific and generates better code for specific cases.
 
-### Calling convention
+## Strings &amp; Array data
+
+Array data is inlined with the code. This goes for strings too. Initializing a global `char foo[]=...;` is cheaper than assigning a constant during runtime. The latter will incur an overhead of 3+4=7 bytes, because it needs to jump over the string!
+
+## Calling convention
 
 The code generator uses a few different code-calling conventions internally:
 * direct calling ATMOS BASIC ROM using `jsr $addr`
@@ -380,11 +400,11 @@ In the command mode the following commands exists, they can be used with single 
 
 ```
 ? - mini help
-h - bigger help      (CTRL-H)
-c - ^Compile program (CTRL-C)
-r - ^Run program     (CTRL-R)
-e - error
-x - e^Xtras
+h - bigger help        (CTRL-H)
+c - ^Compile program   (CTRL-C)
+r - ^Run program       (CTRL-R)
+e - error (goto error)
+x - e^Xtras            (CTRL-X)
 ```
 
 Extras menu:
@@ -464,6 +484,15 @@ If there is an error a newline '%' letter error-code is printed, this error code
 * `%S` - Stack messed up during compilation
 * `%R` - Rule error; unexpected rule popped from stack
 
+**Runtime errors**
+
+Traditionally in C language, very little error checking is performed. It's mostly up to users to add `assert(...)` statements. Some more modern compilers like `zig` may insert array index checking, like `PASCAL` used to do.
+
+When running the compiled program, few situation can be detected and cought, depending on flags set.
+
+* `%S` - Stack overflow. Sentinel byte at bottom of stack disturbed, not safe to return from (recursive) function.
+* `%M` - Malloc, not enough memory (amount requested shown)
+* `%A` - Assert violation. Source byte reported. e) in the IDE will go to it!
 
 
 # Libraries
@@ -509,9 +538,14 @@ There are 8 libraries relevant to ORIC/6502
 
 ```
 getchar()               // returns char from keyboard
-putchar(c);             // 
+putchar(c);             // prints c to terminal
+putcraw(c);             // 
 
-; getline(&buffer,&len,stdio); // return count bytes TODO:
+puts(s);                // print string and \n
+fputs(s, stdout);       // print string and NO \n
+putz(s);                // EXTENDED: same as fputs
+
+; getline(&buffer,&len,stdio); // TODO: -> count bytes
 ; char* readline(char* prompt); // TODO:
 ; char* fgets(char* buffer, word size, stdin)  // TODO:
 
@@ -522,7 +556,7 @@ However, these works!
 printf("%u", X);        // == putu(X); (print word)
 printf("%x", X);        // == puth(X); (print hex)
 printf("%s", X);        // == putz(X); (string no newline) 
-fputs(stdout, X);       // == putz(X0; (string+no newline)
+fputs(X, stdout);       // == putz(X0; (string+no newline)
 puts(X);                // == puts(X); (string+newline)
 
 // if SIGNED support has been enabled
