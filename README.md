@@ -133,6 +133,7 @@ Here is an overview of features supported:
 * `deek(a) doke(a,v)` - word value access in memory (`int*`)
 * unlimited long names `word a, b, abba, foo_bar32, _x;`
 * operators: `+ - & | ^ *2 /2 << >>` taking `v` or `const` as right hand parameter
+* logic: `&&` (not `||` yet)
 * math: `*` (coming `/ %`) (using "mathlibrary")
 * `x= 42;` assignment
 * `a=b=c= 42;` multi variable assignments
@@ -179,7 +180,7 @@ Here is a list of what is not (currently) supported:
 * `switch statement` (TODO: hmmm)
 * `...? ...: ...` (for now use `if`, TODO: will come)
 * correct precedence, keep expressions short!
-* `&& !!` (TODO: yeah, will do, maybe `...? ...: ...` first)
+* `!!` (TODO: yeah, will do, maybe `...? ...: ...` first)
 * no parenthesize supported `(a+3)*b` - nono!
 * `main` is special. It has to be the last funciton, and you can't recurse on it. LOL
 
