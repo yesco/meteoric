@@ -369,6 +369,9 @@ More info coming...
 * permanent storage (disk), files, source code, etc
 * operating system? LOL
 * `#embed "file" [offset(N)] [limit(N)]` - to include binary data.
+* `alloca()` with automatic deallocation(?)
+
+
 
 # IDE User manual
 
