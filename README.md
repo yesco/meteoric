@@ -24,7 +24,7 @@ Report any bugs, or issues. Take screen-shot of code if you found some that does
 * `ORIC ATMOS 48K` required
 * editing is using the HIRES memory as a buffer, if switching to hires mode, and back, the edit buffer is crapped. CTRL-Z re-initializes it with the default startup example. (TODO: save/restore)
 * cassette saving and loaded implemented, but not sure if it works... (TODO: disk)
-
+* no local variables (only global or function parameters)
 
 
 # Origin
@@ -141,34 +141,35 @@ The idea is that code that is legal C and using supported features under the lim
 
 Here is an overview of features supported:
 
-Integrated IDE:
+**Integrated IDE:**
 * built-in help screens
 * list symbols recognized (library functions)
 * reasonably fast compiler (nearly 1000 "lines"/minute?)
 * integrated full-screen editor
 * editor can positions cursor directly at/near error
 * integrated disassembler
-*- optional inline ASM; (prototype, takes extra 2KB)
+* optional inline ASM; (prototype, takes extra 2KB)
 
-Variables:
-* unlimited long names `word a, b, abba, foo_bar32, _x;`
-* the datatype `word` (unsigned int, 16-bit), see array section below for `char[]`
+**Variables:**
+* global variables of type `word`, which is an `unsigned uint16_t` basically. 
+* char-arrays (see arrays section)
+* unlimited long names `word a_cucumber, b52, abba, foo_bar32, _x;`
 
-Expressions:
+**Expressions:**
 * operators: `+ - & | ^ *2 /2 << >>` taking `v` or `const` as right hand parameter
 * logic: `&&` (not `||` yet)
 * math: `*` (coming `/ %`) (using "mathlibrary")
 * `x= 42;` assignment
 * `a=b=c= 42;` multi variable assignments
-* `+= -= &= |= ^= <<= >>= *=2; /=2;` all working with constants or variables, even the shifting `3<<n`
-* comparisons: '== < >=' (more to come... !=)
+* `+= -= &= |= ^= <<= >>= *=2; /=2;` all working with only simple constants or variables, even the shifting takes a variable number of shifts `3<<n`
+* comparisons: `== < >=` (more to come... `> !=`)
 
-Functions:
+**Functions:**
 * functions with up to 8 parameters (TODO: locals coming)
 * recursive functions supported!
 * no forward declaration of function (yet)
 
-Control constructs:
+**Control constructs:**
 * `if (...) ...` with optional `else ...`
 * `{ block(); stmts(); }`
 * `do ... while(...);` - most efficient/small
@@ -176,20 +177,21 @@ Control constructs:
 * `for(...; ...; ...) ...` - expensive and big/slow
 * `return;` or `return ...;`
 
-Accessing memory:
+**Arrays:**
+* `char foo[42];` declares an array
+* `char foo[42]={0};` ensures it's zeroed out
+* `char foo[]="fish";` initialize, with 5 bytes. 
+* `char foo[]={'f',105,0x73,0b1101000);` initialized with 4 bytes. 
+* `sizeof(array)` gives size in bytes
+* `sizeof(var)` gives 2 for other vars (no char yet)
+* `xmalloc(bytes)` fail or give pointer to `bytes` allocated
+
+**Accessing memory:**
 * `*r= *a+3;` derefencing a word is equivalent to using a `char*`-style access (assign, read)
 * `xmalloc(bytes)` - to allocate dynamic memory fail if run out (safer than `malloc`)
 * `peek(a) poke(a,v)` - alternative byte/char memory access (char*)
 * `deek(a) doke(a,v)` - word value access in memory (`int*`)
 
-Arrays:
-* `char foo[42];` declares an array
-* `char foo[42]={0};` ensures it's zeroed out
-* `char foo[]="fish";` initialize, with 5 bytes. 
-* `char foo[]={'f',105,0x73,0b1101000);` initialize, with 4 bytes. 
-* `sizeof(array)` gives size in bytes
-* `sizeof(var)` gives 2 for other vars (no char yet)
-* `xmalloc(bytes)` fail or give pointer to `bytes` allocated
 
 ## Libraries
 
@@ -197,32 +199,35 @@ One of the benefits of C is the standard libraries, like "`libc`". Most applicab
 
 
 
-# Features currently not supported
+# Features currently **not** supported
 
 In the tradition of `Small-C`, `C/65`, `KickC`, and others the compiler supports a narrow, but useful subset of C.
 
-Here is a list of what is not (currently) supported:
+Here is a list of what is *not* (currently) supported:
 
+**Meta level:**
+* `/* no slash-star comments */` use `// comments`
 * `#define ...` or `#ifdef ...` (TODO: limited)
 * `#include ....` (TODO: use for choosing library usage)
+
 *  `break; continue;` (TODO)
 * `extern` - separate compilation (TODO: dynamic libraries!)
 * `long`
-* `int` `signed int` (TODO: considering, but it's slower/more code)
+* `int` `signed int` (TODO: considering, but it's slower/more code and will get you in trouble! `<`)
 * `float double tribble squabble` LOL
 * `struct union` (TODO: thinking about struct)
 * bit fields (nono)
 * no local arrays, make them global, or use `xmalloc()`
-* `word foo[...]=...` not supported:
+* no word arrays: `word foo[...]=...` not supported:
   - use xmalloc to get memory pointer/address
-  - peek/poke for accessing bytes (efficiently compiled!)
-  - deek/doke for word access (also efficient inlined)
+  - `deek doke` to access `word` values (these are efficiently compiled!)
+  - `peek poke` for byte `char` access (efficient)
 * multi-dimensional arrays (see above)
 * `switch statement` (TODO: hmmm)
 * `...? ...: ...` (for now use `if`, TODO: will come)
 * correct precedence, keep expressions short!
 * `!!` (TODO: yeah, will do, maybe `...? ...: ...` first)
-* no parenthesize supported `(a+3)*b` - nono!
+* no real parenthesize supported `(a+3)*b` - nono!
 * `main` is special. It has to be the last funciton, and you can't recurse on it. LOL
 
 It may seem restrictive, but operators have been chosen for ease of implementation as well as efficiency.
@@ -233,9 +238,12 @@ Still, the supported subset is plenty enough to implement the compiler itself. H
 
 # Limitations
 
+**Compilation:**
 * less strict: if it looks like C it might "eat it" and generate some code
 * does not (currently) check arguments number/types of functions, it'll crash if wrong! (TODO:?)
 * few error messages, it'll show how far it got
+
+**Expressions:**
 * precedence not supported; evaluation (at the moment) is mostly LEFT-to-RIGHT: `3+4*2`=> `14`! (TODO: this will be addressed)
   - use simple expressions, in the right order: `4*2+3` works
   - `<' and `==` uses: `expr OP expr` so a "bit better"
@@ -254,10 +262,15 @@ Still, the supported subset is plenty enough to implement the compiler itself. H
   - `0x2a`
   - `052`
 * assignments
-  - are not expressions 
+  - are not expressions, but you can do multi-variable assignements with `a=b=c=3+4;`
   - `var += simple;` with most operators
-* (recursive) function calls have limited stack space, it uses the hardware stack, in the future non-recursive functions will have an extremely fast `_regcall` implementation.
+
+**Limited globals:**
 * global integral variables are limited to zero page. This both saves code size, and improves speed. This is not a limitation on arrays, they are different and stored with the code.
+
+**Functions:**
+* No local varibles yet! This is the same for `main`.
+* (recursive) function calls have limited stack space, it uses the hardware stack, in the future non-recursive functions will have an extremely fast `_regcall` implementation.
 
 
 
