@@ -310,7 +310,7 @@ dynamic arrays, or using pointers:
 
 
 
-# Internals
+# Implementation &amp Internals
 
 MeteoriC-compiler is a recursive-descent interpretive parser. This means it's data-drive *interpreting* rules as data. These rules, when matching will use inline templates to generated machine code directly. The templates have directives and markup to allow for specialization.
 
@@ -318,9 +318,11 @@ This is maybe an unusual design, however, it minimizes the amount of assembly co
 
 In principle it can be repurposed to parse many different languages, however, it's specifically targeted for 6502. It's currently about 1865 bytes. The basic rules are currently about 6900 bytes, of which 1500 bytes are special *optimizing* rules. These decrease code size and improve speed by providing specialized rules for common edge cases. They are specialized for small byte size integer constants; specific operators; or even special values, like 0. They make the code about 20% smaller and faster.
 
+
 ## Generated code
 
 The binary code is generated directly based on templates which come with each rule. Some rules are more specific and generates better code for specific cases.
+
 
 ## Integral Variables
 
@@ -328,9 +330,11 @@ Single variables, like word, char, and pointers are all stored in zero page. Thi
 
 The zero page is also used for parameter passing, (TODO:) either direct (when safe and correct), or using the stack temporary. Read more about calling convention in later section.
 
+
 ## Strings &amp; Array data
 
 Array data is inlined with the code. This goes for strings too. Initializing a global `char foo[]=...;` is cheaper than assigning a constant to a poitner during runtime. The latter will incur an overhead of 3+4=7 bytes, because it needs to jump over the string!
+
 
 ## Calling convention
 
@@ -339,6 +343,173 @@ The code generator uses a few different code-calling conventions internally:
 * ORIC ATMOS graphics/music routines fixed parameter passing calls
 * recursion safe function calling - this employs a totally new calling convention
 * TODO: not using stack - automatic zero page parameter passing, this can be done in some sitatuations when safe and non-recursive.
+
+
+## Memory map
+
+The current `malloc()` just allocates bytes linearly directly after the program. As it's limited by ORIC ATMOS 16KB ROM, 8KB HIRES screen, 2KB CHARSET, and 1K of low memory (ZP, stack, page 2, IO page, reserved page 4).
+
+```
+   T e x t M o d e      |        H i r e s M o d e       
+                 _______|_____________ _ _ _ _ _ _ _ _ _ _
+                 |                 |     
+                 |     BASIC       |            
+                 |                 |
+                 |           R     |  $C000-$FFFF   16 KB
+                 |           O     |    
+                 |           M     |
+                 |                 |
+                 |_________________|__ _ _ _ _ _ _ _ _ _ _
+17 Bytes unused! |____?___?___?____|  $BF40-$BF  42 Bytes
+~1 KB $BF68-$BFDF|_3_lines_of_text_|__ _ _ _ _ _ _ _ _ _ _
+~1 KB $BB80-$____|__Text__|        |
+                 | char   |        |
+~2 KB $B400-$B5FF|____set_| Hires  |  $A000-$BF3F  80000 B!
+                 |        |        |
+                 |        |        |
+      $9800-$B400|  GRAB  |________|__ _ _ _ _ _ _ _ _ _ _
+      (+ 256 B)  |        |Hires   |  $9800-$$A000  ~2 KB
+~7.5 KB          |________|char_set|__ _ _ _ _ _ _ _ _ _ _ 
+                 |                 |
+                 |                 |
+                 |                 |
+                 |                 |
+                 |                 |  $0500-$97FF (+256 B)
+                 |                 |
+                 |                 |
+                 |                 |
+                 |                 |
+                 |_________________|__ _ _ _ _ _ _ _ _ _ _
+                 |__(Disc) Page 4__|  $0400-$04FF  256 B
+                 |___I/O Page 3____|  $0300-$03FF  256 B
+                 |_____Page 2______|  $0200-$02FF  256 B
+                 |______Stack______|  $0100-$01FF  256 B
+                 |____Zero Page____|  $0000-$00FF  256 B
+
+Technially, the 2KB charset has two parts,
+first 1K normal character definition,
+then  1K alt graphics definition.
+
+But each of those starts with 256 Bytes unused
+(chars 0-31, 128-159).
+
+So for program space we have $0500-$98FF=
+= 3788 bytes
+=  148 pages
+=   37 KB
+ 
+------------------------------------------------------------
+    | $0501   | asmstart $1562 
+    |_________|_______________________________________
+    |         |                                       |
+    |  basic  |                                       |
+    | starter |                                       |
+    |_________|_______________________________________|
+    |
+```
+
+### Overview of MeteoriC's memory
+
+This same information can be gotten in the app by pressing CTRL-V. It's very compact!
+
+Note that this will change such that code generated will be after the library as indicated:
+
+
+```
+===============================================
+
+          B A S I C   L O A D E R
+
+
+BASIC start : $0501     51 bytes BASIC overhead
+  _exit     : $051a           (cc65?)
+
+-----------------------------------------------
+
+          L I B R A R Y   A R E A 
+
+
+ (choosing library less, this will no be here)
+          (things will move around)
+
+asmstart    : $0534  13219 bytes assembly
+bios           
+runtime     : $05b4    113 bytes
+  runtimeend: $0625
+libs
+  stdio
+  ctype
+  stdlib
+  string
+  math
+_init        : $0872
+
+-----------------------------------------------
+
+          C O M P I L E D   C O D E
+
+
+                    TODO:
+
+
+    (this requires relocation of compiler)
+
+-----------------------------------------------
+
+                C O M P I L E R
+
+            
+     (which is an BNF-interpreter + rules)
+
+
+
+BNF           
+  compile    : $089c  2078 Bytes BNF parser
+  rulesstart : $1091  6117 Bytes C-rules
+IDE          : $2875
+  editor     : $2903
+  editorend  : $2b01
+  ...
+  memset     : $35fe
+  ideend     : $3671
+debug        : $3671
+  debugend   : $38d7
+asmend       : $38d7
+
+-----------------------------------------------
+
+         E X A M P L E   A R E A 
+
+
+             (to be removed)
+
+input        : $38d7  6909 Bytes for
+  intpuend   : $53d1     a-z examples!
+
+-----------------------------------------------
+
+              C  -  L O A D E R 
+
+
+
+         (these is still remnants of
+        cc65 help routines - too big!)
+
+          (TODO: rewrite in asm?)
+
+
+C            : $54d3 
+  disasm     : $54db  1574 Bytes
+  prettyprint: $5b01  1956 Bytes
+  printvariab: $62a5  1010 Bytes
+
+clib         : $6697   9678 Bytes library code@
+ printf 690 B                  cc65 :-(
+             : $6949
+             : $8c65
+__MAIN_SIZE__: $92f3 ???
+```
+
 
 ## Optimization Limitations
 
@@ -351,6 +522,7 @@ In general, this is just not applicable on the 6502 itself. Instead we employ ru
 These rules captures common patterns in code, but ultimately can only optimize those that are easy to be identified, i.e. obvious ones.
 
 But I'm gonna try to push it as far as it can go!
+
 
 ## ...
 
@@ -618,15 +790,18 @@ These are "all-or-nothing"
 
 ## #include <stdlib.h>
 
-Somewhat working, lol.
+The cursory heap manager is just a stop-gap implementation. Use `xmalloc()`, unless your program handles 0 returned from `malloc()`. On modern *big* computers, memory allocation almost never fails, but you'd be suprised how fast you can run out of memory on a 6502!
 
-TODO: implement for real!
+The current `malloc()` just allocates bytes linearly directly after the program. As it's limited by ORIC ATMOS 16KB ROM, 8KB HIRES screen, 2KB CHARSET, and 1K of low memory (ZP, stack, page 2, IO page, reserved page 4).
+
+See section on Implementation for a more clear memory map.
 
 ```
-xmalloc(n) - allocate; give error if not have memory
+xmalloc(n) - allocate; stop and give error if not enough memory
+free(p)    - TODO: currently, does nothing!
+realloc(p) - TODO: hmmmm
 malloc(n)  - return 0 if not have enough (CHECK!)
-realloc(p) - hmmmm (TODO):
-free(p)    - (TODO): maybe does nothing for now!
+release(p) - release all memory allocat since p malloc:ed!
 ``
 
 
