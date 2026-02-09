@@ -75,36 +75,44 @@ Non-Goals:
 
 Why another compiler? Well, a C-compiler is a challenge! Nevertheless for 6502. What's missing is the interactivity of BASIC or the feeling of Turbo Pascal that revolutionized programming on the nearly equivalent Z80, at least contemporary.
 
-So, the goal is to be interactive, and have a decent integrated compiler, and editor and to be able to run the programs directly, all on the machine without loading or switching to other programs.
+So, the goal is to be interactive, and have a decent integrated compiler, an editor, and to be able to run the programs directly, all on the machine without loading or switching to other programs.
 
-`D-flat` is an amazing language, providing a structured basic, built-in editor ala BASIC with line-numbers, but it's much faster than typical BASICs. But it's not C...
+Other softwares like this include `D-flat`, which is an amazing language and environment, providing a structured Integer BASIC, built-in line editor, but it's much faster than typical BASICs and provides really fast graphics-replacement routines. But it's not C!
 
-For C, we have the excellent `CC65` that provides a very standards compliant cross-compiling compiler. It gets flack because of generated (bloated) slow code, sometimes a bit unfair, it's very reliable and *correct*. Other realistic good alternatives are `SBCC`, `VBCC` (limited license), and finally `Oscar64` which seems like a rising super-star! For ORIC ATMOS, the "outdated" `RCC`, based on early `LCC`, part of OSDK is still used. It is well supported in the ORIC community but voices say "slow", and "big" code. It is also difficult to use under Linux.
+For C, we have the excellent `CC65` that provides a very standards compliant cross-compiling compiler. It gets flack because of generated (bloated) slow code, sometimes a bit unfair, because it's very reliable and *correct*. Other realistic good alternatives are `SBCC` (gnu licence), `VBCC` (limited license), and finally `Oscar64` (also gnu) which seems like a rising super-star!
+
+For ORIC ATMOS, the "outdated" *RCC*, based on an early *LCC*, part of *OSDK* is still used. It is well supported in the ORIC community but voices say "slow", and "big" code. It is also difficult to use under Linux, but the community has provided many tools and much example codes for it.
 
 As we can C, sorry see, interactive alternatives are scarce.
 
-We can mention that there is a lisp-interpreter, only binary available for ORIC ATMOS.
+We can mention that there is a lisp-interpreter, with only binary available for ORIC ATMOS.
 
 So, here comes the `MeteoriC`-compiler!
 
 
-# First and example
+# First example
 
 Too much talking and not enough action, or code.
 
 ```
 01: // A simple program that prints A-Z\n
 02: // in many different ways
+
 03: word c;
+
 04: word main() {
+
 05:   puts("ABCDEFGHIJKKLMNOPQRSTUVWXYZ");
 06:   putz("ABCDEFGHIJKKLMNOPQRSTUVWXYZ\n");
+
 07:   // - biggest and least efficient
 08:   for(c='A'; c<'Z'+1; ++c) putchar(c);
 09:   putchar('\n');
+
 10:   // - OK, OK
 11:   c= 'A'-1; while(c<'Z'+1) putchar(++c);
 12:   putchar('\n');
+
 13:   // - smallest and most efficient  
 14:   c= 'A'; do putchar(c++); while(c<'[');
 15:   putchar('\n');
@@ -116,6 +124,7 @@ Too much talking and not enough action, or code.
 Notes:
 * Line 01,02: `// comments only`
 * Line 03: global variable, no local variables yet, parameters OK
+* Line 05,06: sometimes the most efficient!
 * Line 04,16: the main returns a `word` (standard C only byte), you can use this to have the IDE print the value when the program exits without using a print statement
 * Line 05: `puts` adds a newline after the string
 * Line 06: `putz` (non-standard) or standard-C: `fputs(stdout, "ABC...")` doesn't add newline
