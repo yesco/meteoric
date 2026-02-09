@@ -38,7 +38,7 @@ MeteoriC is a subset of the C programming language as defined by Kernighan and R
 
 This manual that you're reading isn't a guide for C-programming. The user is assumed to know C. Be aware that MeteoriC isn't "fully standard-compliant, and may allow things which isn't allowed in standard C.
 
-Generally, the idea is that a legal C-program should be compilable, assuming it is within the supported subset. Where there are deviations, they have been noted, or may be reported. `KISS` - Keep It S Simple.
+Generally, the idea is that a legal C-program should be compilable, assuming it is within the supported subset. Where there are deviations, they have been noted, or may be reported. `KISS` - Keep It Simple.
 
 MeteoriC comes with an "optional" standard library, basically covering everything from libc etc, that makes sense. Depending on how much of the library code that is enabled, it may use up to about 600 extra bytes. However, binaries can be compiled in "library-less" mode, where only the runtime library is included (~100 bytes). This also depends on if the code uses the ORIC-ATMOS ROM routines, or not. There are thoughts of being able to generate ROMmmable code to replace, or provide an alternative to the BASIC ROM.
 
@@ -230,7 +230,7 @@ Still, the supported subset should be enough to implement the compiler itself. H
   - are not expressions 
   - `var += simple;` with most operators
 * (recursive) function calls have limited stack space, it uses the hardware stack, in the future non-recursive functions will have an extremely fast `_regcall` implementation.
-
+* global integral variables are limited to zero page. This both saves code size, and improves speed. This is not a limitation on arrays, they are different.
 
 # Efficiency
 
@@ -310,9 +310,15 @@ In principle it can be repurposed to parse many different languages, however, it
 
 The binary code is generated directly based on templates which come with each rule. Some rules are more specific and generates better code for specific cases.
 
+## Integral Variables
+
+Single variables, like word, char, and pointers are all stored in zero page. This does limit the number of globals, however, it makes code up to 20% smaller, and maybe 5% faster.
+
+The zero page is also used for parameter passing, (TODO:) either direct (when safe and correct), or using the stack temporary. Read more about calling convention in later section.
+
 ## Strings &amp; Array data
 
-Array data is inlined with the code. This goes for strings too. Initializing a global `char foo[]=...;` is cheaper than assigning a constant during runtime. The latter will incur an overhead of 3+4=7 bytes, because it needs to jump over the string!
+Array data is inlined with the code. This goes for strings too. Initializing a global `char foo[]=...;` is cheaper than assigning a constant to a poitner during runtime. The latter will incur an overhead of 3+4=7 bytes, because it needs to jump over the string!
 
 ## Calling convention
 
@@ -320,11 +326,11 @@ The code generator uses a few different code-calling conventions internally:
 * direct calling ATMOS BASIC ROM using `jsr $addr`
 * ORIC ATMOS graphics/music routines fixed parameter passing calls
 * recursion safe function calling - this employs a totally new calling convention
-* FUTURE: automatic zero page parameter passing
+* TODO: not using stack - automatic zero page parameter passing, this can be done in some sitatuations when safe and non-recursive.
 
 ## Optimization Limitations
 
-The compiler on this platform comes with an inherent limitations;  these are mostly stemming from limited memory and speed.
+The compiler on this platform comes with inherent limitations; these are mostly stemming from limited memory and speed.
 
 Great compilers run on bigger systems and does whole-program analysis; this allows them to totally restructure and specialize the code; functions called once are inlined, parameter passing removed if only passing constants; common subexpression elimination, etc.
 
@@ -341,18 +347,15 @@ More info coming...
 
 
 
-# Future/Planned
+# TODO: Future/Planned
 
 * optimizations coming for non-recursive funcs, basically using static parameter locations.
-* `&& ||`
+* `||` 
 * better handling of precedence
 * generated stand-alone .tap files
 * ROM-less variant of compiler and code
-* permanent storage, files, source code, etc
+* permanent storage (disk), files, source code, etc
 * operating system? LOL
-* user input?
-
-
 
 
 # IDE User manual
@@ -499,6 +502,7 @@ When running the compiled program, few situation can be detected and cought, dep
 
 As mentioned, one of the benefits of C is the all present `stdlib` standard libraries. These are rather minimal expectations and were maybe at the time a giant step forward. Today, they may be consider minimal. They are basic but very handy.
 
+
 ## Bios
 
 In the tradition of `SectorLisp`, `SectorForth`, etc, we assume a prevalent always present `BIOS`. The basic routines would be `putchar(char` and `getchar()`. Putchar has the additional expectation to make a newline with the `'\n'` char, which on most "terminals" involves the sequence `CR LF`. For ORIC I've added a `TAB` (`'\t'`).
@@ -519,7 +523,7 @@ In the future, these includes will determine which libraries are included, so yo
 You can view the current size at the bottom of the screen of `CTRL-V`.
 
 ```
-There are 8 libraries relevant to ORIC/6502
+There are 9 libraries relevant to ORIC/6502
 - bios      :  72 B - getchar putchar
 - misc      :  31 B - nl spc clrscr routines i.e. putchar(' ')
 - runtime   :  91 B - runtime routines (RECURSION)
@@ -530,6 +534,7 @@ There are 8 libraries relevant to ORIC/6502
 - stdlib.h  :  77 B - 
 - string.h  : 164 B - strlen strcpy...
 - libmath.h :  41 B - * (multiplication) TODO: div/mod
+- assert.h  :       - TODO: in progress
 ```
 
 
@@ -545,9 +550,19 @@ puts(s);                // print string and \n
 fputs(s, stdout);       // print string and NO \n
 putz(s);                // EXTENDED: same as fputs
 
+              // takes user input, with limited editing
+              // (only backspace works)
+char* fgets(buff,size,stdio);
+              // EXTENDED: edit existing string
+              // (cursor at end of string at start)
+char* fgets_edit(buff,size,stdio); 
+
+
+
 ; getline(&buffer,&len,stdio); // TODO: -> count bytes
-; char* readline(char* prompt); // TODO:
-; char* fgets(char* buffer, word size, stdin)  // TODO:
+; char* readline(char* prompt); // TODO: history?
+
+
 
 PRINTF SUPPORT - nah, not yet
 
