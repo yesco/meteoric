@@ -127,11 +127,11 @@ Notes:
 * Line 05,06: sometimes the most efficient!
 * Line 04,16: the main returns a `word` (standard C only byte), you can use this to have the IDE print the value when the program exits without using a print statement
 * Line 05: `puts` adds a newline after the string
-* Line 06: `putz` (non-standard) or standard-C: `fputs(stdout, "ABC...")` doesn't add newline
+* Line 06: `putz` (non-standard) or standard-C: `fputs("ABC...", stdout)` doesn't add newline
 * Line 08: `for`- loops jumps around a lot, and thus takes more space, and are slowest
-* Line 12: putchar('\n') becomes a simple `jsr nl`
+* Line 12: `putchar('\n')` becomes a simple `jsr nl`
 * Line 13, 14: `c<'Z'+1` is most costly than `c<'['`
-* Line 14: `do...while(...)`; generates the smallest code and is the most efficient looping construct
+* Line 14: `do...while(...)`; generates the *smallest code* and is the most efficient looping construct
 
 # Supported subset
 
@@ -141,16 +141,18 @@ The idea is that code that is legal C and using supported features under the lim
 
 Here is an overview of features supported:
 
-* integrated IDE
-  - built-in help screens
-  - list symbols recognized (library functions)
-  - reasonably fast compiler (nearly 1000 "lines"/minute?)
-  - integrated full-screen editor
-  - editor can positions cursor directly at/near error
-  - integrated disassembler
-  - optional inline ASM; (prototype, takes extra 2KB)
-* the datatype `word` (unsigned int, 16-bit), see array section below for `char[]`
+Integrated IDE:
+* built-in help screens
+* list symbols recognized (library functions)
+* reasonably fast compiler (nearly 1000 "lines"/minute?)
+* integrated full-screen editor
+* editor can positions cursor directly at/near error
+* integrated disassembler
+*- optional inline ASM; (prototype, takes extra 2KB)
+
+Variables:
 * unlimited long names `word a, b, abba, foo_bar32, _x;`
+* the datatype `word` (unsigned int, 16-bit), see array section below for `char[]`
 
 Expressions:
 * operators: `+ - & | ^ *2 /2 << >>` taking `v` or `const` as right hand parameter
@@ -162,8 +164,8 @@ Expressions:
 * comparisons: '== < >=' (more to come... !=)
 
 Functions:
-* functions with up to 8 parameters (locals coming)
-* recursive functions!
+* functions with up to 8 parameters (TODO: locals coming)
+* recursive functions supported!
 * no forward declaration of function (yet)
 
 Control constructs:
@@ -572,6 +574,7 @@ More info coming...
 * operating system? LOL
 * `#embed "file" [offset(N)] [limit(N)]` - to include binary data.
 * `alloca()` with automatic deallocation(?)
+* tail-recursion optimization
 
 
 
