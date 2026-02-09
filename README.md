@@ -153,7 +153,7 @@ Control constructs:
 
 Accessing memory:
 * `*r= *a+3;` derefencing a word is equivalent to using a `char*`-style access (assign, read)
-* `xmalloc(bytes)` - to allocate dynamic memory
+* `xmalloc(bytes)` - to allocate dynamic memory fail if run out (safer than `malloc`)
 * `peek(a) poke(a,v)` - alternative byte/char memory access (char*)
 * `deek(a) doke(a,v)` - word value access in memory (`int*`)
 
@@ -164,9 +164,9 @@ Arrays:
 * `char foo[]={'f',105,0x73,0b1101000);` initialize, with 4 bytes. 
 * `sizeof(array)` gives size in bytes
 * `sizeof(var)` gives 2 for other vars (no char yet)
+* `xmalloc(bytes)` fail or give pointer to `bytes` allocated
 
-
-# Libraries
+## Libraries
 
 One of the benefits of C is the standard libraries, like "`libc`". Most applicable functions have been implemented,  see the `User manual` section at the end.
 
@@ -183,8 +183,8 @@ Here is a list of what is not (currently) supported:
 *  `break; continue;` (TODO)
 * `extern` - separate compilation (TODO: dynamic libraries!)
 * `long`
-* `int` `signed int` (TODO: considering, it's slower/more code)
-* `float double`
+* `int` `signed int` (TODO: considering, but it's slower/more code)
+* `float double tribble squabble` LOL
 * `struct union` (TODO: thinking about struct)
 * bit fields (nono)
 * no local arrays, make them global, or use `xmalloc()`
@@ -202,12 +202,14 @@ Here is a list of what is not (currently) supported:
 
 It may seem restrictive, but operators have been chosen for ease of implementation as well as efficiency.
 
-Still, the supported subset should be enough to implement the compiler itself. However, for space and speed reasons MeteoriC compiler is written purely in assembly to give the user the most available memory.
+Still, the supported subset is plenty enough to implement the compiler itself. However, for space and speed reasons MeteoriC compiler is written purely in assembly to give the user the most available memory. Some IDE experimental features are coded in C, mostly information functions.
   
+
+
 # Limitations
 
 * less strict: if it looks like C it might "eat it" and generate some code
-* does not (currently) check arguments number/types of functions (TODO:?)
+* does not (currently) check arguments number/types of functions, it'll crash if wrong! (TODO:?)
 * few error messages, it'll show how far it got
 * precedence not supported; evaluation (at the moment) is mostly LEFT-to-RIGHT: `3+4*2`=> `14`! (TODO: this will be addressed)
   - use simple expressions, in the right order: `4*2+3` works
@@ -230,7 +232,9 @@ Still, the supported subset should be enough to implement the compiler itself. H
   - are not expressions 
   - `var += simple;` with most operators
 * (recursive) function calls have limited stack space, it uses the hardware stack, in the future non-recursive functions will have an extremely fast `_regcall` implementation.
-* global integral variables are limited to zero page. This both saves code size, and improves speed. This is not a limitation on arrays, they are different.
+* global integral variables are limited to zero page. This both saves code size, and improves speed. This is not a limitation on arrays, they are different and stored with the code.
+
+
 
 # Efficiency
 
@@ -287,16 +291,24 @@ do...while:
 function  calls:
 * `foo()` no parameters, no local == jsr
 
-arrays:
+static (fixed) arrays:
+* `char arr[4711];`
 * `arr[3]` - most efficient
-* `ptr[3]` - most efficient
 * `arr[(char)i]` - perfect: `LDA arr,x`
-* `ptr(char)i]` - perfect: `LDA arr,x`
 * `arr[(char)...]`- same...
+* `arr[...]` - same expensive as using a pointer, as it needs to add index to the pointer and store in zero page
+
+dynamic arrays, or using pointers:
+* a pointer needs to be dereferenced, on 6502 this means copying it to zero page, so it's always going to have more overhead compared to a static
+* `char* ptr= "foobar";` - (not supported yet, but less efficient)
+* `ptr[3]` - ok efficient
+* `ptr(char)i]` - perfect: `LDA arr,x`
 * `ptr[(char)...]`- same...
-* `arr[...]` - expensive, but may index any size array
-* `ptr[...]` - expensive, we will happily use any variable
+* `ptr[...]` - expensive, we will happily use any integral variable as pointer, LOL
 * **Notice:** we will happy use any variable value as "ptr"
+
+
+
 
 # Internals
 
@@ -356,7 +368,7 @@ More info coming...
 * ROM-less variant of compiler and code
 * permanent storage (disk), files, source code, etc
 * operating system? LOL
-
+* `#embed "file" [offset(N)] [limit(N)]` - to include binary data.
 
 # IDE User manual
 
