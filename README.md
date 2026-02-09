@@ -2,12 +2,19 @@
 
 &copy; 2026 Jonas S Karlsson
 
-MeteoriC is a *minimalist* C-compiler for running *on-device* 6502. Like Turbo Pascal for CP/M 8080 computers, it includes an editor, compiler, and ability to run the program from inside the environment. Errors are indicated in the editor allowing for fast turn-around during development.
+MeteoriC is a *minimalist* C-compiler for running **on-device** 6502. Like Turbo Pascal for CP/M 8080 computers, it includes an editor, compiler, and ability to run the program from inside the environment. Errors are indicated in the editor allowing for fast turn-around during experimentation.
+
 
 
 # Alpha preview
 
-Known limitations:
+This is the very first copy being shared among *early testers*.
+
+Feedback is appreciated. Please refer to the rest of the docs.
+
+Report any bugs, or issues. Take screen-shot of code if you found some that doesn't compile or do the right thing; beware of limitation of the implementation when it comes to expressions.
+
+**Known issues of the alpha:**
 
 * can only view/edit one page of code (no scroll)
 * DEMO version with examples have limited memory
@@ -36,13 +43,16 @@ The compiler has been preceded by various 6502 experiments as well as interprete
 
 MeteoriC is a subset of the C programming language as defined by Kernighan and Richie in the excellent book, “The C Programming Language” (K&amp;R2), published by Prentice-Hall updated with ANSI-style syntax. It's available online for free at [The C Programming Language](https://github.com/auspbro/ebook-c/raw/refs/heads/master/The.C.Programming.Language.2Nd.Ed%20Prentice.Hall.Brian.W.Kernighan.and.Dennis.M.Ritchie..pdf).
 
-This manual that you're reading isn't a guide for C-programming. The user is assumed to know C. Be aware that MeteoriC isn't "fully standard-compliant, and may allow things which isn't allowed in standard C.
+This manual that you're reading isn't a guide for C-programming. The user is assumed to know C. Be aware that MeteoriC isn't "fully standard-compliant", and may allow things which isn't allowed in standard C.
 
-Generally, the idea is that a legal C-program should be compilable, assuming it is within the supported subset. Where there are deviations, they have been noted, or may be reported. `KISS` - Keep It Simple.
+Generally, the idea is that a legal C-program should be compilable, *assuming* it is *within the supported subset*. Where there are deviations, they have been noted, or may be reported. `KISS` - Keep It Simple.
 
-MeteoriC comes with an "optional" standard library, basically covering everything from libc etc, that makes sense. Depending on how much of the library code that is enabled, it may use up to about 600 extra bytes. However, binaries can be compiled in "library-less" mode, where only the runtime library is included (~100 bytes). This also depends on if the code uses the ORIC-ATMOS ROM routines, or not. There are thoughts of being able to generate ROMmmable code to replace, or provide an alternative to the BASIC ROM.
+MeteoriC comes with an "optional" standard library, basically covering everything from libc etc that makes sense. Depending on how much of the library code that is enabled, it may use up to about 600 extra bytes. However, the compiles can be assembled in "library-less" mode, where only the runtime library is included (~100 bytes). This also depends on if the code uses the ORIC-ATMOS ROM routines, or not. There are thoughts of being able to generate ROMmmable code to replace, or provide an alternative to the BASIC ROM.
 
-It does not directly support external libraries, but can handle CC65 calling convention (_fastcall/AX).
+MeteoriC does not directly support external libraries, but can handle CC65 calling convention (_fastcall/AX).
+
+
+
 
 # Usage and positioning
 
