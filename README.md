@@ -157,12 +157,18 @@ Here is an overview of features supported:
 
 **Expressions:**
 * operators: `+ - & | ^ *2 /2 << >>` taking `v` or `const` as right hand parameter
-* logic: `&&` (not `||` yet)
 * math: `*` (coming `/ %`) (using "mathlibrary")
 * `x= 42;` assignment
 * `a=b=c= 42;` multi variable assignments
-* `+= -= &= |= ^= <<= >>= *=2; /=2;` all working with only simple constants or variables, even the shifting takes a variable number of shifts `3<<n`
+* `+= -= &= |= ^= <<= >>= *=2; /=2;` all working with **only** simple constants or variables, even the shifting takes a variable number of shifts `3<<n`
+
+**Comparisons &amp; Logical:**
 * comparisons: `== < >=` (more to come... `> !=`)
+* `!var` or `!!var` or `!(expr)` works
+* logic: `expr && expr` (not `||` yet)
+* parenthesis can *only* be used around an expression, like `(expr && expr)` or`(expr == expr)` so this would work correctly:
+* `((a==b+3) && (b==4))` - In this case without parens it would be understood as: `(a==(b+3 && b)==4`. (mostly left-to-right)
+* Parenthesis, however, cannot allow you to do `simple op COMPLEX`, like `3+(2*2)` will not work! but `(3+2)*2` will (clarifying what happens.
 
 **Functions:**
 * functions with up to 8 parameters (TODO: locals coming)
@@ -227,7 +233,7 @@ Here is a list of what is *not* (currently) supported:
 * `...? ...: ...` (for now use `if`, TODO: will come)
 * correct precedence, keep expressions short!
 * `!!` (TODO: yeah, will do, maybe `...? ...: ...` first)
-* no real parenthesize supported `(a+3)*b` - nono!
+* `(a==b+3) && (b==4)` - parenthsis have limited support, but can "stop" parsing where it should. In this case without parens it would be understood as: `(a==(b+3 && b)==4`. (left-to-right)
 * `main` is special. It has to be the last funciton, and you can't recurse on it. LOL
 
 It may seem restrictive, but operators have been chosen for ease of implementation as well as efficiency.
@@ -246,7 +252,10 @@ Still, the supported subset is plenty enough to implement the compiler itself. H
 **Expressions:**
 * precedence not supported; evaluation (at the moment) is mostly LEFT-to-RIGHT: `3+4*2`=> `14`! (TODO: this will be addressed)
   - use simple expressions, in the right order: `4*2+3` works
-  - `<' and `==` uses: `expr OP expr` so a "bit better"
+  - `<` and `==` uses: `expr OP expr` so a "bit better"
+  - `(expr) && (expr)` is supported, any `expr` can be surrounded by parenthesises
+  - `(a<3) && (b>4+3)` will also work
+  - `(a<3) && (b>4+3)` will also work
 * operators only support limited right-hand side data
 <br>`COMPLEX op simple op simple ...`
 * `COMPLEX` can be 
@@ -258,12 +267,10 @@ Still, the supported subset is plenty enough to implement the compiler itself. H
   - `simple` (see below)
 * `simple` must be a constant
   - `42`
-  - `'*'`
+  - `'c'`
   - `0x2a`
   - `052`
-* assignments
-  - are not expressions, but you can do multi-variable assignements with `a=b=c=3+4;`
-  - `var += simple;` with most operators
+* `var += simple;` with most operators
 
 **Limited globals:**
 * global integral variables are limited to zero page. This both saves code size, and improves speed. This is not a limitation on arrays, they are different and stored with the code.
