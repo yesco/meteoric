@@ -47,7 +47,11 @@ This manual that you're reading isn't a guide for C-programming. The user is ass
 
 Generally, the idea is that a legal C-program should be compilable, *assuming* it is *within the supported subset*. Where there are deviations, they have been noted, or may be reported. `KISS` - Keep It Simple.
 
-MeteoriC comes with an "optional" standard library, basically covering everything from libc etc that makes sense. Depending on how much of the library code that is enabled, it may use up to about 600 extra bytes. However, the compiles can be assembled in "library-less" mode, where only the runtime library is included (~100 bytes). This also depends on if the code uses the ORIC-ATMOS ROM routines, or not. There are thoughts of being able to generate ROMmmable code to replace, or provide an alternative to the BASIC ROM.
+MeteoriC comes with an "optional" standard library, basically covering everything from libc etc that makes sense. Depending on how much of the library code that is enabled, it may use up to about 800 extra bytes. However, the compiler can be assembled in "library-less" mode, where only the runtime library is included (~100 bytes), and even that isn't needed if you don't need functions with parameter passing!
+
+The compiler, when compiled for ORIC-ATMOS, will use some of the BASIC ROM routines, mostly for screen, and keyboard as well as graphics and sound, by providing a small API.
+
+There are plans to generate ROMmmable code to replace, or provide an alternative to the BASIC ROM. This is particularly interesting for the LOCI-device that provides a modern file-system capabilities.
 
 MeteoriC does not directly support external libraries, but can handle CC65 calling convention (_fastcall/AX).
 
@@ -426,12 +430,19 @@ Note that this will change such that code generated will be after the library as
 
 
 ```
+Program area to be used:  $0500-$97FF (+256 B)
+
+(+ (- #x980 #x0500) 256) = 37888 = 37 K
+
+ORIC BASIC says at startup: 37637
+
+
 ===============================================
 
           B A S I C   L O A D E R
 
 
-BASIC start : $0501     51 bytes BASIC overhead
+BASIC start : $0501     51 Bytes BASIC overhead
   _exit     : $051a           (cc65?)
 
 -----------------------------------------------
@@ -442,9 +453,9 @@ BASIC start : $0501     51 bytes BASIC overhead
  (choosing library less, this will no be here)
           (things will move around)
 
-asmstart    : $0534  13219 bytes assembly
-bios           
-runtime     : $05b4    113 bytes
+asmstart    : $0534   830 Bytes library
+bios              
+runtime     : $05b4   (113 bytes)
   runtimeend: $0625
 libs
   stdio
