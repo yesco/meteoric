@@ -317,9 +317,8 @@ The following forms are exceptionally efficient and optimized on 6502.
                     (code)
   INDEX       CHECK BYTES
   =====       ===== =====
-  calibrate   : ?=b   0         
-  s[3]        : b=b   5      // super! LDA $addr
-  s[(char)a]  : b=b   7      // good:  LDY $addr,x
+  s[3]        : b=b   5     // super! LDA $addr
+  s[(char)a]  : b=b   7     // good:  LDY $addr,x
   s[(char)(a)]: b=b  10     // generic expression
 
   s[300]      : ?==  18      \
@@ -330,6 +329,22 @@ The last three cases comes out to:
 - 4 bytes to load index
 - 10 bytes to ADD index and address of `s`, and then storing it in `tos`
 - 4 bytes to `LDX #0; LDA ($addr,x)` indirect, using `($addr,x)` instead of `($addr),y` saves 2 bytes as we get `x` set to 0 for free!
+
+**Pointer (to an array):**
+```
+  INDEX       CHECK BYTES
+  =====       ===== =====
+  p[3]        : b=?  14     // slight, ok
+  p[(char)a]  : b=?  14     // ok
+  p[(char)(a)]: b=?  17     // inbetween
+
+  p[300]      : ?==  20     \
+  p[a]        : b=b  20      }- bad boy
+  p[(a)]      : b=b  20     /
+```
+As can be observed; this is substantially more code and less efficient; in most cases the pointer needs to be loaded to zero page, and in the first two cases we can benefit from indirect indexing, the third, ok.
+
+The conclusion is that indexing directly in global array is substantially cheaper, particularly if index < 256 `(char)`. If possible: *don't pass pointers around but prefer indices*.
 
 **if statements:**
 * `if (v==0) ...` - most efficient
