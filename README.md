@@ -772,7 +772,7 @@ When running the compiled program, few situation can be detected and cought, dep
 
 * `%S` - Stack overflow. Sentinel byte at bottom of stack disturbed, not safe to return from (recursive) function.
 * `%M` - Malloc, not enough memory (amount requested shown)
-* `%A` - Assert violation. Source byte reported. e) in the IDE will go to it!
+* `%A` - Assert violation. Source location reported. e) in the IDE will go to it!
 
 
 # Libraries
@@ -922,11 +922,38 @@ For `int`egers, and `word` there aren't many functions that are defined. However
 ```
 
 
+## #include <assert.h>
+
+For debugging, and writing good code, one may need to "assert" the assumptions. If a value isn't supposed to be zero, like `malloc`-allocation. You can write an assert.
+
+Here we show an assert that doesn't allow the value to be 13:
+```
+(this is example d, try it out `^L d`)
+
+// debug assert(13) test!
+#include <assert.h>
+
+word i;
+
+word main() {
+  puts("-- before assert");
+  i=0;
+  while(++i) {
+    putu(i); putchar(' ');
+    // don't become 13!
+    assert(i-13); 
+
+  }
+  puts("--- after assert: Won't get here");
+}
+```
+The program will output the numbers 0 to 13 then it'll give a runtime error and move to display the offending line! Press key `e` to the error in the source.
+
+
 ## Other libraries for consideration
 
 ```
 - stddef.h  :       - nah
-- assert.h  :       - nah
 - limits.h  :       - nah (INT_MAX INT_MIN, ffs)
 - system.h  :       - nah (exec? maybe need an OS)
 - unistd.h  :       - nah (complicated file system stuff)
