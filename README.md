@@ -20,7 +20,7 @@ Report any bugs, or issues. Take screen-shot of code if you found some that does
 * DEMO version with examples have limited memory
 * very little error checking
 * it may hang, it may crash, or give wrong result! - please report with examples!
-* Arrays, have char array, but for word* you can use `xmalloc,peek,poke,deek,doke`!
+* Arrays: have char array, but for word you can use `xmalloc,peek,poke,deek,doke`!
 * `ORIC ATMOS 48K` required
 * editing is using the HIRES memory as a buffer, if switching to hires mode, and back, the edit buffer is crapped. CTRL-Z re-initializes it with the default startup example. (TODO: save/restore)
 * cassette saving and loaded implemented, but not sure if it works... (TODO: disk)
@@ -287,20 +287,20 @@ Still, the supported subset is plenty enough to implement the compiler itself. H
 
 The following forms are exceptionally efficient and optimized on 6502.
 
-Inc &amp; dec operators:
+**Inc &amp; dec operators:**
 * `++i; i++;` - same cost (6 bytes)!
 * `--i; i--;` - same cost (+2 bytes cmp ++)
 
-In an expression:
+**In an expression:**
 * `++i +1` `i++ +2` `i-- +2` all same cost (+ 10 B for the ++ --)
 * `--i +3` worst! (+ 2 bytes)
 
-Shifting:
+**Shifting:**
 * `a<<= 1;` - 2 instructions!
 * `a>>= 1;` - same
 * `a<<= 2;` and `>>=` all the way up to 7 are inlined &amp; fast
 
-Others:
+**Others:**
 * `BIGGER * smaller` - faster
 * `... op CONST` - probably better than the other way around
 * `... op const` - some times ops optimized for 0..255
@@ -309,12 +309,34 @@ Others:
 * `... <  ...`   - an extra +10 bytes
 * `... >= ...`   - an extra + 10 bytes
 
-if statements:
+**Indexing char-arrays:**
+```
+  (this is more or less from Input/arrays.c)
+
+  s: $7BAB "foobar"
+                    (code)
+  INDEX       CHECK BYTES
+  =====       ===== =====
+  calibrate   : ?=b   0         
+  s[3]        : b=b   5      // super! LDA $addr
+  s[(char)a]  : b=b   7      // good:  LDY $addr,x
+  s[(char)(a)]: b=b  10     // generic expression
+
+  s[300]      : ?==  18      \
+  s[a]        : b=b  18       }- must do int arith
+  s[(a)]      : b=a  18      /
+```
+The last three cases comes out to:
+- 4 bytes to load index
+- 10 bytes to ADD index and address of `s`, and then storing it in `tos`
+- 4 bytes to `LDX #0; LDA ($addr,x)` indirect, using `($addr,x)` instead of `($addr),y` saves 2 bytes as we get `x` set to 0 for free!
+
+**if statements:**
 * `if (v==0) ...` - most efficient
 * `if (v==...) ...` - 13 bytes better than `if (...==v) ...`
 * `if (v&42) ...` - fewer bytes for small constant
 
-while statements (better to worse):
+**while statements (better to worse):**
 * `while(v) ...` - fast
 * `while(v==42) ...` 
 * `while(v==x) ...` 
@@ -324,7 +346,7 @@ while statements (better to worse):
 * `while(...==...) ...` - worst: expensive+bigger
 * `while(...<...) ...` - worst: expensive+bigger
 
-do...while:
+**do...while:**
 * `do ... while(v);` - small and FASTEST
 * `do ... while(!v);` - same same
 * `do ... while(v<42);` - OK
@@ -333,17 +355,17 @@ do...while:
 * `while(...<...) ...` - expensive overhead +9 + 
 * `while(...==...) ...` - expensive overhead +9 + 
 
-function  calls:
+**function calls:**
 * `foo()` no parameters, no local == jsr
 
-static (fixed) arrays:
+**static (fixed) arrays:**
 * `char arr[4711];`
 * `arr[3]` - most efficient
 * `arr[(char)i]` - perfect: `LDA arr,x`
 * `arr[(char)...]`- same...
 * `arr[...]` - same expensive as using a pointer, as it needs to add index to the pointer and store in zero page
 
-dynamic arrays, or using pointers:
+**dynamic arrays, or using pointers:**
 * a pointer needs to be dereferenced, on 6502 this means copying it to zero page, so it's always going to have more overhead compared to a static
 * `char* ptr= "foobar";` - (not supported yet, but less efficient)
 * `ptr[3]` - ok efficient
