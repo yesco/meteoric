@@ -336,7 +336,7 @@ The last three cases comes out to:
   =====       ===== =====
   p[3]        : b=?  14     // slight, ok
   p[(char)a]  : b=?  14     // ok
-  p[(char)(X)]: b=?  17     // inbetween
+  p[(char)(X] : b=?  17     // inbetween
 
   p[300]      : ?==  20     \
   p[a]        : b=b  20      }- bad boy
@@ -356,6 +356,19 @@ INDEX       CHECK BYTES
   s[a]=        : E=E  21      # runtime calc addr
   s[(EXPR)]=   : F=F  28      # worst add+pha+indirect
 ```
+
+**Update element using pointer[index]:**
+```
+  INDEX       CHECK BYTES
+  =====       ===== =====
+  p[3]=        : A=A  28
+  p[(char)a]=  : B=B  34       # TODO: why?
+  p[300]=      : D=D  28
+  p[a]=        : E=E  28
+  p[(EXPR)]=   : F=F  28
+```
+This is not yet an optimized operation, it was just added. It currently has one generic rule `ptr[...]`. This is where we notice the cost of "generic" un-optimized operators, and how much it matters!
+
 
 **if statements:**
 * `if (v==0) ...` - most efficient
