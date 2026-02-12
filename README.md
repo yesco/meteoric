@@ -336,15 +336,26 @@ The last three cases comes out to:
   =====       ===== =====
   p[3]        : b=?  14     // slight, ok
   p[(char)a]  : b=?  14     // ok
-  p[(char)(a)]: b=?  17     // inbetween
+  p[(char)(X)]: b=?  17     // inbetween
 
   p[300]      : ?==  20     \
   p[a]        : b=b  20      }- bad boy
-  p[(a)]      : b=b  20     /
+  p[(EXPR)]   : b=b  20     /
 ```
 As can be observed; this is substantially more code and less efficient; in most cases the pointer needs to be loaded to zero page, and in the first two cases we can benefit from indirect indexing, the third, ok.
 
 The conclusion is that indexing directly in global array is substantially cheaper, particularly if index < 256 `(char)`. If possible: *don't pass pointers around but prefer indices*.
+
+**array[index]=...;**
+INDEX       CHECK BYTES
+  =====       ===== =====
+  s[3]=        : A=A  5       # precalc address
+  s[(char)a]=  : B=B  7       # cool
+  s[(char)(X)]=: C=C  16      # nah, wtf? TODO:
+  s[300]=      : D=D  5       # precalc address
+  s[a]=        : E=E  21      # runtime calc addr
+  s[(EXPR)]=   : F=F  28      # worst add+pha+indirect
+```
 
 **if statements:**
 * `if (v==0) ...` - most efficient
