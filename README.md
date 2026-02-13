@@ -353,19 +353,20 @@ INDEX       CHECK BYTES
   s[(char)a]=  : B=B  7       # cool
   s[(char)(X)]=: C=C  16      # nah, wtf? TODO:
   s[300]=      : D=D  5       # precalc address
-  s[a]=        : E=E  21      # runtime calc addr
-  s[(EXPR)]=   : F=F  28      # worst add+pha+indirect
+  s[a]=const   : E=E  17      # runtime half add
+  s[a]=EXPR    : Q=Q  19      # some cleverness
+  s[(EXPR)]=   : F=F  26      # worst full runtime add
 ```
 
 **Update element using pointer[index]:**
 ```
   INDEX       CHECK BYTES
   =====       ===== =====
-  p[3]=        : A=A  28
-  p[(char)a]=  : B=B  34       # TODO: why?
-  p[300]=      : D=D  28
-  p[a]=        : E=E  28
-  p[(EXPR)]=   : F=F  28
+  p[3]=        : A=A   6       # precalc, was 28
+  p[(char)a]=  : B=B   6       # yeah! `STA (p),Y`
+  p[300]=      : D=D  17       # runtime half add
+  p[a]=        : E=E  18       # runtime half add
+  p[(EXPR)]=   : F=F  27       # worst full runtime add
 ```
 This is not yet an optimized operation, it was just added. It currently has one generic rule `ptr[...]`. This is where we notice the cost of "generic" un-optimized operators, and how much it matters!
 
