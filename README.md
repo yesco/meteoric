@@ -1158,22 +1158,22 @@ filename
 
 # Licence
 
-The intent of this section is to make it clear that no claims are made on the user's compiled program rights, or to its source code. It's considered wholly fully owned by it's author.
+The intent of this section is to make it clear that no claims are made on the user's compiled program rights, or to its source code. It's considered wholly fully owned by its author.
 
-MeteoriC compiler is released under AGPLv3 or later version. Bugfixes are welcome and feature improvements. These **must** be udner AGPL, or may otherwise not be combined with this work. Some compilers, limit the rights of users to fix bugs, or modify the compiler, MeteoriC does not limit those rights.
+MeteoriC compiler is released under AGPLv3 or later version. Bugfixes are welcome and feature improvements. These **must** be under AGPL, or may otherwise not be combined with this work. Some compilers, limit the rights of users to fix bugs, or modify the compiler, MeteoriC does not.
 
-Refer to the file `LICENCE`in the root directory of the project for the full AGPL licence.
+Refer to the file `LICENSE`in the root directory of the project for the full AGPL license.
 
 **Summary of Rights**
-- **Does a user have to share their own app's source code?<br/>** No (because of the Exception).
-- **Does a user have to share changes they made to your compiler?**<br/>Yes (because of the AGPL).
+- **Does a user have to share their own app's source code?<br/>** No (because of the Exception).  
+- **Does a user have to share changes they made to your compiler?**<br/>Yes (because of the AGPL). 
 - **Does the "Binary-to-Binary" process trigger AGPL?**<br/>No, the Exception explicitly permits this "incorporation" without forcing the license on the output.
 
-To avoid confusion, "The contents of the `/Input` or `/Examples` directory are excluded from the AGPL and are dedicated to the public domain."
+To avoid confusion, "The contents of the `/Input` or `/Examples` directory are excluded from the AGPL and are dedicated to the public domain, see the file `UNLICENSE."
 
 ## Goals
 
-**Protects the Compiler:** If someone modifies the compiler’s source code, it's optimization engine, or adds a new feature to the libraries, that code and changes must be shared under AGPLv3.
+**Protects the Compiler:** If someone modifies the compiler’s source code, its optimization engine, or adds a new feature to the libraries, that code and changes must be shared under AGPLv3.
 
 **The "Source Reading" Distinction:** By specifying that the exception applies to the act of compilation, we clarify that the user's code isn't "infected" just because it passed through the compiler.
 
@@ -1184,15 +1184,14 @@ To avoid confusion, "The contents of the `/Input` or `/Examples` directory are e
 
 "This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, version 3, with the Exception for Generated Output."
 
-Refer to the file `LICENCE`in the root directory of the project for the full AGPL licence.
+Refer to the file `LICENSE`in the root directory of the project for the full AGPL license.
 
-## Your Program
+## The MeteoriC Compiling Exception
 
-More formal:
+More formallly; about Your Program, and the binary output from the MeteoriC compiler from Your Program:
 
-**Exception for Generated Output:**
-
-"As a special exception to the AGPLv3, the act of compiling, linking, or otherwise using this Compiler to generate an executable binary from user-provided input does not, by itself, cause the resulting binary to be covered by the GNU AGPL.
+"As a special exception to the AGPLv3, the act of compiling, linking, or otherwise using this Compiler to generate an executable binary from user-provided input does not, by itself, cause the resulting binary to
+be covered by the GNU AGPL.
 
 This exception applies even if the Compiler, in the process of generating the binary, incorporates pre-compiled machine code or binary artifacts from the Compiler’s standard libraries into the output.
 
