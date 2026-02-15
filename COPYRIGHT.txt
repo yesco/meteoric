@@ -1,0 +1,6 @@
+// Copyright (C) 2025 Jonas S Karlsson
+// Licensed under the GNU AGPLv3
+//   with the "MeteoriC Compiling Exception"
+// - https://github.com/yesco/meteoric/
+// See LICENSE and LICENSE_EXCEPTION for full terms
+

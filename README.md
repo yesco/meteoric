@@ -1197,7 +1197,7 @@ This exception applies even if the Compiler, in the process of generating the bi
 
 This exception does not grant permission to distribute or modify the source code of the Compiler or its libraries except under the terms of the AGPLv3. It is intended solely to ensure that the user's own original code and the resulting machine-readable binaries remain the property of the user."
 
-This is exception is also spelled out in `LICENCE_EXCEPTION.txt"-file.
+This is exception is also spelled out in `LICENSE_EXCEPTION"-file.
 
 
 # That's it folks!
