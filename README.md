@@ -20,7 +20,7 @@ Report any bugs, or issues. Take screen-shot of code if you found some that does
 * DEMO version with examples have limited memory
 * very little error checking
 * it may hang, it may crash, or give wrong result! - please report with examples!
-* Arrays: have char array, but for word you can use `xmalloc,peek,poke,deek,doke`!
+* Arrays: have char array, but for word you can use `xmalloc,peek,poke,deek(addr),doke(addr,val)`! - *Note:* deek/doke take addresses, so for interger array need multiply index by two: doke(i*2+array, val);`
 * `ORIC ATMOS 48K` required
 * editing is using the HIRES memory as a buffer, if switching to hires mode, and back, the edit buffer is crapped. CTRL-Z re-initializes it with the default startup example. (TODO: save/restore)
 * cassette saving and loaded implemented, but not sure if it works... (TODO: disk)
@@ -224,7 +224,7 @@ Here is an overview of features supported:
 * `*r= *a+3;` derefencing a word is equivalent to using a `char*`-style access (assign, read)
 * `xmalloc(bytes)` - to allocate dynamic memory fail if run out (safer than `malloc`)
 * `peek(a) poke(a,v)` - alternative byte/char memory access (char*)
-* `deek(a) doke(a,v)` - word value access in memory (`int*`)
+* `deek(a) doke(a,v)` - word value access at any memory location `*(int*)(a)`. **Notice:** the address isn't aligned and it *doesn't* work like index, so to access an "array of integers" you'd have to `doke(i*2+arr, val);`.
 
 
 ## Libraries
