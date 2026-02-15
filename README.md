@@ -1158,7 +1158,7 @@ filename
 
 # Licence
 
-The intent of this section is to make it clear that no claims are made on the user's compiled program rights, or to its source code. It's considered wholly fully owned by its author.
+The intent of this section is to make it clear that no claims are made on the user's compiled program rights, or to its source code. It's considered wholly, and fully owned by its author.
 
 MeteoriC compiler is released under AGPLv3 or later version. Bugfixes are welcome and feature improvements. These **must** be under AGPL, or may otherwise not be combined with this work. Some compilers, limit the rights of users to fix bugs, or modify the compiler, MeteoriC does not.
 
@@ -1177,7 +1177,7 @@ To avoid confusion, "The contents of the `/Input` or `/Examples` directory are e
 
 **The "Source Reading" Distinction:** By specifying that the exception applies to the act of compilation, we clarify that the user's code isn't "infected" just because it passed through the compiler.
 
-**Handles Binary-to-Binary:** The compiler uses a binary to generate a new binary, this exception covers those "binary artifacts" that end up inside the user's final product. Without this, those binary chunks would carry the AGPL "copyleft" requirement into the user's program.
+**Handles Binary-to-Binary:** The compiler uses a binary to generate a new binary; this exception covers those "binary artifacts" that end up inside the user's final product. Without this, those binary chunks would carry the AGPL "copyleft" requirement into the user's program.
 
 
 ## The Compiler
@@ -1186,7 +1186,7 @@ To avoid confusion, "The contents of the `/Input` or `/Examples` directory are e
 
 Refer to the file `LICENSE`in the root directory of the project for the full AGPL license.
 
-## The MeteoriC Compiling Exception
+## "The MeteoriC Compiling Exception"
 
 More formallly; about Your Program, and the binary output from the MeteoriC compiler from Your Program:
 
@@ -1196,6 +1196,8 @@ be covered by the GNU AGPL.
 This exception applies even if the Compiler, in the process of generating the binary, incorporates pre-compiled machine code or binary artifacts from the Compiler’s standard libraries into the output.
 
 This exception does not grant permission to distribute or modify the source code of the Compiler or its libraries except under the terms of the AGPLv3. It is intended solely to ensure that the user's own original code and the resulting machine-readable binaries remain the property of the user."
+
+This is exception is also spelled out in `LICENCE_EXCEPTION.txt"-file.
 
 
 # That's it folks!

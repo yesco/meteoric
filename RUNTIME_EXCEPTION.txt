@@ -1,0 +1,10 @@
+## The MeteoriC Compiling Exception
+
+More formallly; about Your Program, and the binary output from the MeteoriC compiler from Your Program:
+
+"As a special exception to the AGPLv3, the act of compiling, linking, or otherwise using this Compiler to generate an executable binary from user-provided input does not, by itself, cause the resulting binary to
+be covered by the GNU AGPL.
+
+This exception applies even if the Compiler, in the process of generating the binary, incorporates pre-compiled machine code or binary artifacts from the Compiler’s standard libraries into the output.
+
+This exception does not grant permission to distribute or modify the source code of the Compiler or its libraries except under the terms of the AGPLv3. It is intended solely to ensure that the user's own original code and the resulting machine-readable binaries remain the property of the user."
