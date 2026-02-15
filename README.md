@@ -1160,7 +1160,7 @@ filename
 
 The intent of this section is to make it clear that no claims are made on the user's compiled program rights, or to its source code. It's considered wholly fully owned by it's author.
 
-MeteoriC compiler is free under AGPL. Bugfixes are welcome and feature improvements. These **must** be udner AGPL, or may otherwise not be combined with this work. Some compilers, limit the rights of users to fix bugs, or modify the compiler, MeteoriC does not limit those rights.
+MeteoriC compiler is released under AGPLv3 or later version. Bugfixes are welcome and feature improvements. These **must** be udner AGPL, or may otherwise not be combined with this work. Some compilers, limit the rights of users to fix bugs, or modify the compiler, MeteoriC does not limit those rights.
 
 Refer to the file `LICENCE`in the root directory of the project for the full AGPL licence.
 
@@ -1169,7 +1169,7 @@ Refer to the file `LICENCE`in the root directory of the project for the full AGP
 - **Does a user have to share changes they made to your compiler?**<br/>Yes (because of the AGPL).
 - **Does the "Binary-to-Binary" process trigger AGPL?**<br/>No, the Exception explicitly permits this "incorporation" without forcing the license on the output.
 
-To avoid confusion, "The contents of the `/Input` or `/Examples` directory are excluded from the AGPLv3 and are dedicated to the public domain."
+To avoid confusion, "The contents of the `/Input` or `/Examples` directory are excluded from the AGPL and are dedicated to the public domain."
 
 ## Goals
 
