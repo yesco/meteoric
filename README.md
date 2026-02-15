@@ -27,6 +27,34 @@ Report any bugs, or issues. Take screen-shot of code if you found some that does
 * no local variables (only global or function parameters)
 
 
+
+# Speed Anecdote
+
+Just did a test using the simulator, compiling `/Input/lps.c` - essentially 4711 lines with `++i;`.
+
+```
+./mc         =>   1.777 s   22432 bytes (for 6502)
+cc65              0.775 CRASH! (out of code space!)
+cc65 -Oirs   =>   0.857 s   37560 bytes (for 6502 opt)
+oscar64 -O0  =>  >5 minutes! (turned off opt!)
+oscar64 -O3  =>  23.724 s     152 bytes (for 6502, opt)
+clang        =>   0.454 s   61904 bytes (for ARM)
+tcc          =>   0.024 s  135464 bytes (for ARM)
+```
+So, MeteoriC, generates a binary of 22432 bytes, running the compiler in a simulated 6502 takes 1.777 seconds, which is pretty fast! That's 2651 lines per second. This with the overhead of interpreation which may be up to 10x the cost in time. MeteoriC has not yet gotten focus on speed-improvements of the compiler itself. So this figure will change.
+
+CC65 crashes because the code generated is too big. It says 28500 bytes too big, and then it had already written a file of 35498 bytes, basically reaching the 64K limit. Turning on all optimizations, and even then I had to the file to 4689 lines of code, it generates a binary of 37560 bytes.
+
+`Oscar64` is quite an enigma--at first, I ran it without optimization `-O0`, intending to give it the least work to do; but it sat there for more than 5 minutes! Not sure if it'll ever terminated. Then, changing tactics, I turned on optimization and the compiler did finish thejob: in about 24 seconds! However, what is the result is only 152 bytes. Taking 24 seconds makes is 13 times slower than MeteoriC,but it sure does clever optimizations.
+
+I have not been able to compile clang-mos for termux environment so I just compiled it to arm and it was relative fast at 0.454 seconds. Binary of 61904 bytes.
+
+Finally, no speed-test is complete without Bellard's `tcc` Tiny C Compiler; it generated 135464 bytes at a tremendous speed, in 0.024 seconds. TCC is famous for it's high-speed, but generating large, unoptimized code, as can be seen from that it's output file is more than double from that of clang.
+
+In any case, MeteoriC holds up pretty good in terms of speed for this simple test.
+
+
+
 # Origin
 
 MeteoriC is written from scratch starting August 2025 by Jonas S Karlsson, in 6502 assembly using CA65. The idea about a minimal compiler is similar to [Small-C](https://en.wikipedia.org/wiki/Small-C), and [C/65](https://atariwiki.org/wiki/attach/C65Manual-Text/c65manual.pdf), and others.
