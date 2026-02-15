@@ -1156,5 +1156,47 @@ filename
 -pe    Print env debug info (pretty print bytes of vars)
 ```
 
+# Licence
+
+The intent of this section is to make it clear that no claims are made on the user's compiled program rights, or to its source code. It's considered wholly fully owned by it's author.
+
+MeteoriC compiler is free under AGPL. Bugfixes are welcome and feature improvements. These **must** be udner AGPL, or may otherwise not be combined with this work. Some compilers, limit the rights of users to fix bugs, or modify the compiler, MeteoriC does not limit those rights.
+
+Refer to the file `LICENCE`in the root directory of the project for the full AGPL licence.
+
+**Summary of Rights**
+- **Does a user have to share their own app's source code?<br/>** No (because of the Exception).
+- **Does a user have to share changes they made to your compiler?**<br/>Yes (because of the AGPL).
+- **Does the "Binary-to-Binary" process trigger AGPL?**<br/>No, the Exception explicitly permits this "incorporation" without forcing the license on the output.
+
+To avoid confusion, "The contents of the `/Input` or `/Examples` directory are excluded from the AGPLv3 and are dedicated to the public domain."
+
+## Goals
+
+**Protects the Compiler:** If someone modifies the compiler’s source code, it's optimization engine, or adds a new feature to the libraries, that code and changes must be shared under AGPLv3.
+
+**The "Source Reading" Distinction:** By specifying that the exception applies to the act of compilation, we clarify that the user's code isn't "infected" just because it passed through the compiler.
+
+**Handles Binary-to-Binary:** The compiler uses a binary to generate a new binary, this exception covers those "binary artifacts" that end up inside the user's final product. Without this, those binary chunks would carry the AGPL "copyleft" requirement into the user's program.
+
+
+## The Compiler
+
+"This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, version 3, with the Exception for Generated Output."
+
+Refer to the file `LICENCE`in the root directory of the project for the full AGPL licence.
+
+## Your Program
+
+More formal:
+
+**Exception for Generated Output:**
+
+"As a special exception to the AGPLv3, the act of compiling, linking, or otherwise using this Compiler to generate an executable binary from user-provided input does not, by itself, cause the resulting binary to be covered by the GNU AGPL.
+
+This exception applies even if the Compiler, in the process of generating the binary, incorporates pre-compiled machine code or binary artifacts from the Compiler’s standard libraries into the output.
+
+This exception does not grant permission to distribute or modify the source code of the Compiler or its libraries except under the terms of the AGPLv3. It is intended solely to ensure that the user's own original code and the resulting machine-readable binaries remain the property of the user."
+
 
 # That's it folks!
