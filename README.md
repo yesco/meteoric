@@ -363,6 +363,15 @@ C sees & is higher than |, so it does A & B first. Matches your L-to-R.
 
 C sees | is higher than &&, so it does A | B first. Matches L-to-R.
 
+**Note:**
+
+The left hand side of an `LHS op RHS` can alwasy be written as `(LHS) op RHS`, however, no parenthis can be used for `RHS` -- there you'd need to break out the `RHS` expressions and assign it to another variable first.
+
+So you can "break" the rule above by writing:
+
+`(A + B) * C`
+
+
 ### Illegal expressions
 
 In these examples, a standard C compiler will try to do the second operation first. Meteoric evaluator will prohibit these.
