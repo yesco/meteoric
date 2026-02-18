@@ -20,7 +20,7 @@ Report any bugs, or issues. Take screen-shot of code if you found some that does
 * DEMO version with examples have limited memory
 * very little error checking
 * it may hang, it may crash, or give wrong result! - please report with examples!
-* Arrays: have char array, but for word you can use `xmalloc,peek,poke,deek(addr),doke(addr,val)`! - *Note:* deek/doke take addresses, so for interger array need multiply index by two: doke(i*2+array, val);`
+* Arrays: have char array, but for word you can use `xmalloc,peek,poke,deek(addr),doke(addr,val)`! - *Note:* deek/doke take addresses, so for integer array need multiply index by two: doke(i*2+array, val);`
 * `ORIC ATMOS 48K` required
 * editing is using the HIRES memory as a buffer, if switching to hires mode, and back, the edit buffer is crapped. CTRL-Z re-initializes it with the default startup example. (TODO: save/restore)
 * cassette saving and loaded implemented, but not sure if it works... (TODO: disk)
@@ -188,15 +188,14 @@ Here is an overview of features supported:
 * math: `*` (coming `/ %`) (using "mathlibrary")
 * `x= 42;` assignment
 * `a=b=c= 42;` multi variable assignments
-* `+= -= &= |= ^= <<= >>= *=2; /=2;` all working with **only** simple constants or variables, even the shifting takes a variable number of shifts `3<<n`
+* `+= -= &= |= ^= <<= >>= ... ;` all working with **only** simple constants or variables, even the shifting takes a variable number of shifts `3<<n`.
 
 **Comparisons &amp; Logical:**
 * comparisons: `== < >=` (more to come... `> !=`)
 * `!var` or `!!var` or `!(expr)` works
 * logic: `expr && expr` (not `||` yet)
-* parenthesis can *only* be used around an expression, like `(expr && expr)` or`(expr == expr)` so this would work correctly:
-* `((a==b+3) && (b==4))` - In this case without parens it would be understood as: `(a==(b+3 && b)==4`. (mostly left-to-right)
-* Parenthesis, however, cannot allow you to do `simple op COMPLEX`, like `3+(2*2)` will not work! but `(3+2)*2` will (clarifying what happens.
+* parenthesis can *only* be used around an expression, like `(expr && expr)` or `(expr == expr)` so this would work correctly:
+* `((a==b+3) && (b==4))` - Is fine.
 
 **Functions:**
 * functions with up to 8 parameters (TODO: locals coming)
@@ -259,7 +258,7 @@ Here is a list of what is *not* (currently) supported:
 * multi-dimensional arrays (see above)
 * `switch statement` (TODO: hmmm)
 * `...? ...: ...` (for now use `if`, TODO: will come)
-* correct precedence, keep expressions short!
+* precedence in expressions are enforced to occur in highest order to lowest order. `4*5+3` is fine `3+4*5` is prohibited, as it is more complicated (and unnecessary).
 * `!!` (TODO: yeah, will do, maybe `...? ...: ...` first)
 * `(a==b+3) && (b==4)` - parenthsis have limited support, but can "stop" parsing where it should. In this case without parens it would be understood as: `(a==(b+3 && b)==4`. (left-to-right)
 * `main` is special. It has to be the last funciton, and you can't recurse on it. LOL
@@ -269,7 +268,6 @@ It may seem restrictive, but operators have been chosen for ease of implementati
 Still, the supported subset is plenty enough to implement the compiler itself. However, for space and speed reasons MeteoriC compiler is written purely in assembly to give the user the most available memory. Some IDE experimental features are coded in C, mostly information functions.
   
 
-
 # Limitations
 
 **Compilation:**
@@ -277,35 +275,117 @@ Still, the supported subset is plenty enough to implement the compiler itself. H
 * does not (currently) check arguments number/types of functions, it'll crash if wrong! (TODO:?)
 * few error messages, it'll show how far it got
 
-**Expressions:**
-* precedence not supported; evaluation (at the moment) is mostly LEFT-to-RIGHT: `3+4*2`=> `14`! (TODO: this will be addressed)
-  - use simple expressions, in the right order: `4*2+3` works
-  - `<` and `==` uses: `expr OP expr` so a "bit better"
-  - `(expr) && (expr)` is supported, any `expr` can be surrounded by parenthesises
-  - `(a<3) && (b>4+3)` will also work
-  - `(a<3) && (b>4+3)` will also work
-* operators only support limited right-hand side data
-<br>`COMPLEX op simple op simple ...`
-* `COMPLEX` can be 
-  - `variable`
-  - `*variable` assumed to be pointer to char
-  - `++var` or `--var` or `var++` or `var--`
-  - `fun(...)`
-  - `"fourtytwo"`
-  - `simple` (see below)
-* `simple` must be a constant
-  - `42`
-  - `'c'`
-  - `0x2a`
-  - `052`
-* `var += simple;` with most operators
-
 **Limited globals:**
 * global integral variables are limited to zero page. This both saves code size, and improves speed. This is not a limitation on arrays, they are different and stored with the code.
 
 **Functions:**
 * No local varibles yet! This is the same for `main`.
 * (recursive) function calls have limited stack space, it uses the hardware stack, in the future non-recursive functions will have an extremely fast `_regcall` implementation.
+
+
+## Expressions
+
+MeteoriC has a quirk; it uses pure left-to-right evaluation as this is the most efficient way. This, however, may give a semantic clash with *operator preceedence* levels.
+
+In C, operators of higher or equal preceedence are to be evaluated first. For example in `a+b*c`: `b*c` is multiplied first and then `a` is added. Normal optimizing C compilers will re-order the expression for efficiency. If they aren't optimizing they'll push `a` on the stack ; push `'b' one stack; push `c` one the stack; call `multiply` that pops two items from the stack, nd then pushes the result; only to pop it off again and the final `a` and then add it; and push it on the stack! It's easy to make it correct but it comes at a very high cost; which is why many Forth-interpreters have so much overhead.
+
+As a compromise, in MeteoriC, we're restricing the *order* of operations to keep it *legal* and *semantically correct*.
+
+In an expression like `COMPLEX op1 simple op2 simple ...` , `op1` must have **higher or equal precedence** than `op2`. Use this ordered list (from Highest to Lowest) to determine what is legal:
+
+|operator|name|
+|---|---|
+| `(... , ...)`	| Parenthesis |
+| `++ -- ! -`   | Unary (one arg) |
+| `* / %`	| Multiplicative |
+| `+ -`         | Additive |
+| `<< >>`       | Shift |
+| `< > <= >=`   | Relational |
+| `== !=`       | Equality |
+| `&`           | Bitwise AND |
+| `^`           | Bitwise XOR |
+| `|`           | Bitwise OR |
+| `&&`          | Logical AND |
+| `||`          | Logical OR |
+| `+= -+ /+ *= <<= >>=` | Assignment Modifier |
+| `=`           | Assignement
+
+### COMPLEX
+
+Can be any of:
+```
+(...)
+array[...]
+ptr[...]
+variable
+0xf00d
+4711
+'c'
+
+   OR
+
+++variable --variable variable-- variable++
+variable= ...
+
+   These are special as they are very efficient
+
+variable+= bytevalue;
+variable-= bytevalue;
+
+variable<<= simple;
+variable>>= simple;
+
+```
+
+### Legal expresions
+
+Here are some illuminating example. In all these cases, assume the evaluator is looking at the raw expression: `A op1 B op2 C`:
+
+In these examples, MeteoriC will have no issues and behave exactly like the standard C compiler, as they are purely left-to-right evaluation.
+
+`A * B + C`
+
+C sees * is higher than +, so it does A * B first. Matches L-to-R.
+
+`A + B << C`
+
+C sees + is higher than <<, so it does A + B first. Matches L-to-R.
+
+`A == B & C`
+
+C sees == is higher than &, so it does A == B first. Matches L-to-R.
+
+`A & B | C`
+
+C sees & is higher than |, so it does A & B first. Matches your L-to-R.
+
+`A | B && C`
+
+C sees | is higher than &&, so it does A | B first. Matches L-to-R.
+
+### Illegal expressions
+
+In these examples, a standard C compiler will try to do the second operation first. Meteoric evaluator will prohibit these.
+
+`A + B * C` ==> write instead `B * C + A`
+
+The Conflict: C wants to do `B * C` first. L-to-R would do `A + B` first.
+
+`A | B & C` ==> write instead `B & C | A`
+
+The Conflict: C wants to do `B & C` first (AND is higher than OR). L-to-R would do `A | B` first.
+
+`A && B == C` ==> write instead `B == C && A`
+
+The Conflict: C wants to do `B == C` first. L-to-R would `A && B` first.
+
+`v= A << B + C` ==> write instead `n= B+C; v= A << n;`
+
+The Conflict: C wants to do B + C first (Math is higher than Shifting). L-to-R would do `A << B` first.
+
+### The "Same Level" Rule
+
+If `op1` and `op2` are the same (e.g., `A / B * C`), it is always legal order because C's math and logic operators (except assignments) default to left-to-right associativity when the precedence is equal.
 
 
 
