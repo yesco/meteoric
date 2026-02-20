@@ -20,7 +20,7 @@ Report any bugs, or issues. Take screen-shot of code if you found some that does
 * DEMO version with examples have limited memory
 * very little error checking
 * it may hang, it may crash, or give wrong result! - please report with examples!
-* Arrays: have char array, but for word you can use `xmalloc,peek,poke,deek(addr),doke(addr,val)`! - *Note:* deek/doke take addresses, so for integer array need multiply index by two: doke(i*2+array, val);`
+* Arrays: have char array, but for `word` you can use `xmalloc,peek,poke,deek(addr),doke(addr,val)`! - *Note:* deek/doke take addresses, so for integer array need multiply index by two: doke(i*2+array, val);`
 * `ORIC ATMOS 48K` required
 * editing is using the HIRES memory as a buffer, if switching to hires mode, and back, the edit buffer is crapped. CTRL-Z re-initializes it with the default startup example. (TODO: save/restore)
 * cassette saving and loaded implemented, but not sure if it works... (TODO: disk)
@@ -151,9 +151,9 @@ Too much talking and not enough action, or code.
 
 Notes:
 * Line 01,02: `// comments only`
-* Line 03: global variable, no local variables yet, parameters OK
+* Line 03: global `word` variable, no local variables yet, parameters OK
 * Line 05,06: sometimes the most efficient!
-* Line 04,16: the main returns a `word` (standard C only byte), you can use this to have the IDE print the value when the program exits without using a print statement
+* Line 04,16: the main returns a `word` (standard C: int), you can use this to have the IDE print the value when the program exits without using a print statement
 * Line 05: `puts` adds a newline after the string
 * Line 06: `putz` (non-standard) or standard-C: `fputs("ABC...", stdout)` doesn't add newline
 * Line 08: `for`- loops jumps around a lot, and thus takes more space, and are slowest
@@ -179,7 +179,7 @@ Here is an overview of features supported:
 * optional inline ASM; (prototype, takes extra 2KB)
 
 **Variables:**
-* global variables of type `word`, which is an `unsigned uint16_t` basically. 
+* global variables of type `word`, which is an `unsigned uint16_t` basically. Think of it as if you've written `typedef uint16_t word;`, which by the way you can and it's ignored!
 * char-arrays (see arrays section)
 * unlimited long names `word a_cucumber, b52, abba, foo_bar32, _x;`
 
@@ -214,7 +214,8 @@ Here is an overview of features supported:
 * `char foo[42];` declares an array
 * `char foo[42]={0};` ensures it's zeroed out
 * `char foo[]="fish";` initialize, with 5 bytes. 
-* `char foo[]={'f',105,0x73,0b1101000);` initialized with 4 bytes. 
+* `char foo[]={'f',105,0x73,0b1101000);` initialized with 4 bytes.
+* **Note:** there is no `char` type so you can declare a single variable this way! NO: `char c;` :-D
 * `sizeof(array)` gives size in bytes
 * `sizeof(var)` gives 2 for other vars (no char yet)
 * `xmalloc(bytes)` fail or give pointer to `bytes` allocated
@@ -242,11 +243,14 @@ Here is a list of what is *not* (currently) supported:
 * `/* no slash-star comments */` use `// comments`
 * `#define ...` or `#ifdef ...` (TODO: limited)
 * `#include ....` (TODO: use for choosing library usage)
+* In actually anything after `#` is ignored (for now)
+* `typedef uint16_t word;` is implied; you can actually type it and it will be ignored!
 
 *  `break; continue;` (TODO)
 * `extern` - separate compilation (TODO: dynamic libraries!)
 * `long`
 * `int` `signed int` (TODO: considering, but it's slower/more code and will get you in trouble! `<`)
+* `int main()` is allowed, but only here, not for functions in general
 * `float double tribble squabble` LOL
 * `struct union` (TODO: thinking about struct)
 * bit fields (nono)
