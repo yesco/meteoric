@@ -781,7 +781,7 @@ More info coming...
 
 
 
-# IDE User manual
+# IDE User Manual
 
 The MeteoriC program "lives" in the editor. It allows for full-screen editing and compilation (currently: ORIC ATMOS).
 
@@ -827,19 +827,19 @@ In the command mode the following commands exists, they can be used with single 
 ```
 ? - mini help
 h - bigger help        (CTRL-H)
-c - ^Compile program   (CTRL-C)
 r - ^Run program       (CTRL-R)
+c - ^Compile program   (CTRL-C)
 e - error (goto error)
 x - e^Xtras            (CTRL-X)
+Q - quit
 ```
 
-Extras menu:
+**`CTRL-X` extras menu:**
 ```
 b - ^Buffers: show examples    (CTRL-X CTRL-B)
 f - ^Files open from tape      (CTRL-X CTRL-F)
 
-(not working? unverified)
-
+**(TODO: not working? unverified):**
 s - ^Save current file to tape (CTRL-X CTRL-S)
 w - ^Write/save new file as (new name)
                                (CTRL-X CTRL-W)
@@ -850,9 +850,8 @@ w - ^Write/save new file as (new name)
 
 ```
 v - ^Vinfo of compiler/program/libraries (CTRL-V)
-o - ^Out - print variables               (CTRL-O)
-q - ^Q disasm compiled program           (CTRL-Q)
-x - ^X extended functions                (CTRL-X)
+o - ^Out - print variables
+d - disasm compiled program              (CTRL-Q)
 
 (^Garnish program (pretty print) - not accessible)
 ```
@@ -861,7 +860,7 @@ x - ^X extended functions                (CTRL-X)
 ## TODO: 
 
 ```
-Not yet: ^Search ^J ^Machinecode(^Q)
+Not yet: ^Search   ^J indent ^O ^Machinecode(^Q)
 ```
 
 
