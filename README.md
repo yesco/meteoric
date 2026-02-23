@@ -759,6 +759,26 @@ These rules captures common patterns in code, but ultimately can only optimize t
 But I'm gonna try to push it as far as it can go!
 
 
+## `@words` numbers
+
+MeteoriC has a new type of minimal automatic version numbers.
+
+One could manually use `v0.98a` or some common system like that, but I need to be able `at a glance` be able to figure out how old a version in the web-emulator is, and if my load of a new version worked. Sometimes, I need to clear the cache and kill chrome as it doesn't actually clear the cache correctly at all times!
+        
+For this, once could use an ISO-data ala `2025-02-17_15:33`; these are sortable so easy to keep track of in the filesystem and order (when tarred-up for distribution f.ex.).
+
+I wanted version numbers to have the same function; tob e lexically sortable, but also be short on the screen, and even better if they were *somewhat memorable*.
+
+Instead of ISO-dates we're using **"alphamal"**, a 5-letter counting system. It's counting minutes from the first commit of the main file of the compiler.
+
+The version always has the form `@abcde` and starts at the MeteoriC's epoch of `250727_2211` which is `@aaaaa`. The time is in *Thailand time*. Every minute this "version" name changes, and it's automatically updated and picked up each time the compiler is compiled.
+
+For fun, the `./mmepoc` program can print upcoming version names that are English words. If I want a specific word, I'd either have to fake it, or wait till the right time and then do the compilation.
+
+Regarding the range: 26^5 minutes is good for 22 years.
+
+
+
 ## ...
 
 More info coming...
