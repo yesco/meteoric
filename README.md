@@ -760,7 +760,7 @@ These rules captures common patterns in code, but ultimately can only optimize t
 But I'm gonna try to push it as far as it can go!
 
 
-## `@words` numbers
+## `@words` version "numbers"
 
 MeteoriC has a new type of minimal automatic version numbers.
 
