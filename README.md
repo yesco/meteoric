@@ -468,6 +468,7 @@ As can be observed; this is substantially more code and less efficient; in most 
 The conclusion is that indexing directly in global array is substantially cheaper, particularly if index < 256 `(char)`. If possible: *don't pass pointers around but prefer indices*.
 
 **array[index]=...;**
+```
 INDEX       CHECK BYTES
   =====       ===== =====
   s[3]=        : A=A  5       # precalc address
@@ -939,6 +940,27 @@ When running the compiled program, few situation can be detected and cought, dep
 * `%M` - Malloc, not enough memory (amount requested shown)
 * `%A` - Assert violation. Source location reported. e) in the IDE will go to it!
 
+## Debugging
+
+Debugging is limited. "print"-style debugging is your friend. LOL.
+
+### Tracepoints
+
+Putting a single "_" surrounded by spaces will create a "tracepoint". This is where the execution stops temporary, the source code line is printed with the next part of the line to be executed highlighted in green color. 
+
+TODO: inprogress: any integral variables that changed since last tracepoint will be printed with their old and new values.
+
+### Breakpoint
+
+"_" is a precursor for real "breakpoints"; these will probably be "__" and will stop and allow you to do *some* inspections and ops.
+
+Stay tuned!
+
+### Trace functions
+
+Functions such marked ("__trace") will be tracable--showing each entry call+parameters and the corresponding return value. Nested function calls will be outlined with indentation.
+
+
 
 # Libraries
 
@@ -952,7 +974,7 @@ In the tradition of `SectorLisp`, `SectorForth`, etc, we assume a prevalent alwa
 These take up anything from 0 bytes (library less) to 80ish bytes, and maybe 300 bytes for ROM-less.
 
 
-## stdlib
+## Standard libraries
 
 Typically, in a C program, you'd include the appropriate library to use it. C has become more strict in this regard. You can do this in MeteoriC, too. However, currently, any line starting with `#` is ignored!
 
@@ -1057,7 +1079,14 @@ free(p)    - TODO: currently, does nothing!
 realloc(p) - TODO: hmmmm
 malloc(n)  - return 0 if not have enough (CHECK!)
 release(p) - release all memory allocat since p malloc:ed!
-``
+
+Numbers randomization
+
+srand(n)    - set random seed, default 1
+rand()      - get pseudorandom number
+```
+Note: `srand(0)` won't give any numbers, just 0...
+NoteII: `rand()` is simple but gives almost all numbers "except" numbers < 10 or so... LOL.
 
 
 ## #include <string.h>
