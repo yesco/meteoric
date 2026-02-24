@@ -1363,13 +1363,17 @@ filename
        Loads a file as input to buffer.
 
 -c     Compiles current buffer.
--q     Disasm of program.
 -r[N]  Runs program N times, default 1.
+-d     Disasm of program.
+-Q     Quit (stop processing parameters)
 
--pv    Print variables info
--pV    (NEW)Print variables values
--pe    Print env debug info (pretty print bytes of vars)
+-pN    Print Names (defined order)
+-pe    Print env debug info (reverse vars & addr)
+
+-sNAME Snapshot   series: snap-NAME-00.ram
+-s_ACT Snapshot instance: snap-NAME-0?_ACT
 ```
+
 
 # Licence
 
