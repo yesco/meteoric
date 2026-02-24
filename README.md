@@ -1028,7 +1028,7 @@ char* fgets_edit(buff,size,stdio);
 
 
 
-PRINTF SUPPORT - nah, not yet
+PRINTF SUPPORT - nah, not yet (see next section)
 
 However, these works!
 
@@ -1041,6 +1041,52 @@ puts(X);                // == puts(X); (string+newline)
 // if SIGNED support has been enabled
 printf("%d", X);             // == putd
 ```
+
+
+### Formatting strings ("printf")
+
+`printf` is notarious "heavyduty", both in code size and in low speed. Most compilers clock well over 1000 bytes for the implementation, and quite often printing simple integers becomes really slow.
+
+#### Byte Size Comparison
+
+These are at best "guestimates" by Google AI:
+
+**cc65:** A full printf implementation typically consumes ~1,200 to 1,500 bytes. Because cc65 uses a hand-optimized assembly library, it is relatively compact for its feature set, but it still represents a significant portion of a 64KB memory map.
+
+**vbcc:** The printf footprint is generally larger, often exceeding 2,000 bytes when including full floating-point support. However, vbcc is highly modular; if you don't use floats or complex formatting, the linker can sometimes strip it down to a more manageable size.
+
+**Oscar64:** Known for extreme optimization, its printf is often the smallest among modern 6502 C compilers, typically clocking in at under 1,000 bytes for a standard integer-only build. It uses aggressive code analysis to eliminate unused formatting logic during the compilation phase. 
+
+### MeteoriC variant
+
+In MeteoriC we try to avoid this problem. We've introduce nearly optimial and really cheap `putu() putd() putx() putz() puts()` printing functions. However, for formatting, that's another game. This is the first attemp capturing the formatting capabilities, on the cheap, saving both memory and speed. Our implementation is less than 100 bytes!
+
+Here is a sketch of these new formating functions; results shown on the left, and on the right, we show the equivalent `printf`:s.
+
+
+```
+printf has the form: printf("%[-][0][<w>][.<p>][u|d|x|s|c]<post>", ...);
+
+    1234 = p(recision) = max chars to print from string/min from number!
+ 1234567 = w(idth)     = minimal width of the whole field
+"     42" : putfu(42, 7, 0, "<post>");    == printf("%7d<post>", var);
+"   0042" : putfu(42, 7, 4, "<post>");    == printf("%7.4u<post>", var);
+"0000042" : putfu(42, 7, 7, "<post>");    == printf("%07d<post>", var);
+"0042   " : putfu(42,-7, 0, "<post>");    == printf("%-7.4d<post>", var);
+"002a   " : putfx/(42,-7, 0, "<post>");    == printf("%-7.4d<post>", var);
+"   002a" : putfx/(42, 7, 0, "<post>");    == printf("%7.4d<post>", var);
+
+"    foO" : putfs("foO", 7, 0, "<post>"); == printf("%-7.3s<post>", var);
+"foO    " : putfs("foO",-7, 0, "<post>"); == printf("%-7.3s<post>", var);
+
+"     fo" : putfs("foO", 7, 2, "<post>"); == printf("%-7.3s<post>", var);
+"fo     " : putfs("foO",-7, 2, "<post>"); == printf("%-7.3s<post>", var);
+```
+These are compiled to quite efficient code, and the post striing is put inline after the call minimizing the overhead. Basically, you could say that we'd pre-parsed the format string already.
+
+**NOTE:** the `w` and `p` numbers can not be bigger than 127, as we use a single byte to process these. In practice this shouldn't be a problem unless one relies on printf-abuse, LOL. I think it's been provden `printf` (in gcc?) is Turing-complete!
+
+In the future, we may automate the generation of this code from a normal `printf(format, ...)`.
 
 
 ## # #include <ctype.h>
