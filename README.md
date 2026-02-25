@@ -1067,24 +1067,39 @@ Here is a sketch of these new formating functions; results shown on the left, an
 ```
 printf has the form: printf("%[-][0][<w>][.<p>][u|d|x|s|c]<post>", ...);
 
+instead we use:
+
     1234 = p(recision) = max chars to print from string/min from number!
  1234567 = w(idth)     = minimal width of the whole field
-"     42" : putfu(42, 7, 0, "<post>");    == printf("%7d<post>", var);
-"   0042" : putfu(42, 7, 4, "<post>");    == printf("%7.4u<post>", var);
-"0000042" : putfu(42, 7, 7, "<post>");    == printf("%07d<post>", var);
-"0042   " : putfu(42,-7, 0, "<post>");    == printf("%-7.4d<post>", var);
-"002a   " : putfx/(42,-7, 0, "<post>");    == printf("%-7.4d<post>", var);
-"   002a" : putfx/(42, 7, 0, "<post>");    == printf("%7.4d<post>", var);
+
+== numbers ==
+
+"42     " : putfu(42  ,-7, 0, "<post>"); == printf("%-7.0d<post>", var);
+"     42" : putfu(42  , 7, 0, "<post>"); == printf("%7.0d<post>", var);
+"4711   " : putfu(4711,-7, 0, "<post>"); == printf("%-7.0d<post>", var);
+"   4711" : putfu(4711, 7, 0, "<post>"); == printf("%-7.0d<post>", var);
+
+== strings ==
 
 "    foO" : putfs("foO", 7, 0, "<post>"); == printf("%-7.3s<post>", var);
 "foO    " : putfs("foO",-7, 0, "<post>"); == printf("%-7.3s<post>", var);
 
 "     fo" : putfs("foO", 7, 2, "<post>"); == printf("%-7.3s<post>", var);
 "fo     " : putfs("foO",-7, 2, "<post>"); == printf("%-7.3s<post>", var);
-```
-These are compiled to quite efficient code, and the post striing is put inline after the call minimizing the overhead. Basically, you could say that we'd pre-parsed the format string already.
 
-**NOTE:** the `w` and `p` numbers can not be bigger than 127, as we use a single byte to process these. In practice this shouldn't be a problem unless one relies on printf-abuse, LOL. I think it's been provden `printf` (in gcc?) is Turing-complete!
+These are still TODO (leading zeroes):
+"   0042" : putfu(42, 7, 4, "<post>");    == printf("%7.4u<post>", var);
+"0000042" : putfu(42, 7, 7, "<post>");    == printf("%07d<post>", var);
+"0042   " : putfu(42,-7, 0, "<post>");    == printf("%-7.4d<post>", var);
+"002a   " : putfx(42,-7, 0, "<post>");    == printf("%-7.4d<post>", var);
+"   002a" : putfx(42, 7, 0, "<post>");    == printf("%7.4d<post>", var);
+
+See file: Input/putf-formatting.c
+```
+These are compiled to quite efficient code, and the post string is put inline after the call minimizing the overhead. Basically, you could say tha
+t we'd pre-parsed the format string already.
+
+**NOTE:** the `w` and `p` numbers can not be bigger than 127, as we use a single byte to process these. In practice this shouldn't be a problem unless one relies on printf-abuse, LOL. I think it's been proven `printf` (in gcc?) is Turing-complete!
 
 In the future, we may automate the generation of this code from a normal `printf(format, ...)`.
 
