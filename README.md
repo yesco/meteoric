@@ -1074,10 +1074,13 @@ instead we use:
 
 == numbers ==
 
-"42     " : putfu(42  ,-7, 0, "<post>"); == printf("%-7.0d<post>", var);
-"     42" : putfu(42  , 7, 0, "<post>"); == printf("%7.0d<post>", var);
-"4711   " : putfu(4711,-7, 0, "<post>"); == printf("%-7.0d<post>", var);
-"   4711" : putfu(4711, 7, 0, "<post>"); == printf("%-7.0d<post>", var);
+"42     " : putfu(42  ,-7, 0, "<post>"); == printf("%-7d<post>", var);
+"     42" : putfu(42  , 7, 0, "<post>"); == printf("%7d<post>", var);
+"4711   " : putfu(4711,-7, 0, "<post>"); == printf("%-7d<post>", var);
+"   4711" : putfu(4711, 7, 0, "<post>"); == printf("%-7d<post>", var);
+
+"-1     " : putfd(-1,-7, 0, "<post>");   == printf("%-7d<post>", var);
+" -32767" : putfd(-32767,7,0,"<post>");  == printf("%7d<post>", var);
 
 == strings ==
 
@@ -1087,7 +1090,7 @@ instead we use:
 "     fo" : putfs("foO", 7, 2, "<post>"); == printf("%-7.3s<post>", var);
 "fo     " : putfs("foO",-7, 2, "<post>"); == printf("%-7.3s<post>", var);
 
-These are still TODO (leading zeroes):
+These are still TODO: (leading zeroes):
 "   0042" : putfu(42, 7, 4, "<post>");    == printf("%7.4u<post>", var);
 "0000042" : putfu(42, 7, 7, "<post>");    == printf("%07d<post>", var);
 "0042   " : putfu(42,-7, 0, "<post>");    == printf("%-7.4d<post>", var);
