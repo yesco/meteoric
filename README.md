@@ -1059,7 +1059,7 @@ These are at best "guestimates" by Google AI:
 
 ### MeteoriC variant
 
-In MeteoriC we try to avoid this problem. We've already introduced nearly optimial and really cheap `putu() putd() putx() putz() puts()` printing functions. However, for formatting, that's another game. This is the first attemp capturing the formatting capabilities, on the cheap, saving both memory and speed. Our library formatting implementation is about 250 bytes!
+In MeteoriC we try to avoid this problem. We've already introduced nearly optimial and really cheap `putu() putd() putx() putz() puts()` printing functions. However, for formatting, that's another game. This is the first attemp capturing the formatting capabilities, on the cheap, saving both memory and speed. Our library formatting functions implementation is about 250 bytes!
 
 Here is a sketch of these new formating functions; results shown on the left, and on the right, we show the equivalent `printf`:s.
 
