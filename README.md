@@ -4,7 +4,7 @@
 
 MeteoriC is a *minimalist* C-compiler for running **on-device** 6502. Like Turbo Pascal for CP/M 8080 computers, it includes an editor, compiler, and ability to run the program from inside the environment. Errors are indicated in the editor allowing for fast turn-around during experimentation.
 
-
+> *Writing a C compiler in assembly for the MOS 6502 (the processor in the NES, Commodore 64, and Apple II) is a legendary challenge. It is a "Holy Grail" project because the 6502 architecture is famously hostile to C.*
 
 # Alpha preview
 
