@@ -250,7 +250,7 @@ Here is a list of what is *not* (currently) supported:
 * `extern` - separate compilation (TODO: dynamic libraries!)
 * `long`
 * `int` `signed int` (TODO: considering, but it's slower/more code and will get you in trouble! `<`)
-* `int main()` is allowed, but only here, not for functions in general
+* `int main()` is allowed for compatibility, as `void main()`, but only here, not for functions in general. (yet)
 * `float double tribble squabble` LOL
 * `struct union` (TODO: thinking about struct)
 * bit fields (nono)
@@ -265,11 +265,11 @@ Here is a list of what is *not* (currently) supported:
 * precedence in expressions are enforced to occur in highest order to lowest order. `4*5+3` is fine `3+4*5` is prohibited, as it is more complicated (and unnecessary).
 * `!!` (TODO: yeah, will do, maybe `...? ...: ...` first)
 * `(a==b+3) && (b==4)` - parenthsis have limited support, but can "stop" parsing where it should. In this case without parens it would be understood as: `(a==(b+3 && b)==4`. (left-to-right)
-* `main` is special. It has to be the last funciton, and you can't recurse on it. LOL
+* `main` is special. It has to be the **last function**, and you can't recurse on or refer to it. LOL
 
-It may seem restrictive, but operators have been chosen for ease of implementation as well as efficiency.
+This may feel as if it's not a complete C - and it's not! But operators have been chosen for ease of implementation as well as efficiency.
 
-Still, the supported subset is plenty enough to implement the compiler itself. However, for space and speed reasons MeteoriC compiler is written purely in assembly to give the user the most available memory. Some IDE experimental features are coded in C, mostly information functions.
+Still, the supported subset is plenty enough to implement the compiler itself. However, for space and speed reasons MeteoriC compiler is written purely in assembly to give the user the most available memory. Some IDE experimental features are coded in C, mostly information functions. These are optional and may be removed.
   
 
 # Limitations
@@ -285,6 +285,7 @@ Still, the supported subset is plenty enough to implement the compiler itself. H
 **Functions:**
 * No local varibles yet! This is the same for `main`.
 * (recursive) function calls have limited stack space, it uses the hardware stack, in the future non-recursive functions will have an extremely fast `_regcall` implementation.
+* `main` has to be the last function. There can be only one, and it cannot be referred to by name, or called.
 
 
 ## Expressions
@@ -294,6 +295,8 @@ MeteoriC has a quirk; it uses pure left-to-right evaluation as this is the most 
 In C, operators of higher or equal preceedence are to be evaluated first. For example in `a+b*c`: `b*c` is multiplied first and then `a` is added. Normal optimizing C compilers will re-order the expression for efficiency. If they aren't optimizing they'll push `a` on the stack ; push `'b' one stack; push `c` one the stack; call `multiply` that pops two items from the stack, nd then pushes the result; only to pop it off again and the final `a` and then add it; and push it on the stack! It's easy to make it correct but it comes at a very high cost; which is why many Forth-interpreters have so much overhead.
 
 As a compromise, in MeteoriC, we're restricing the *order* of operations to keep it *legal* and *semantically correct*.
+
+*(TODO: this isn't fully implemented yet; currently only `* +` are "controlled")*
 
 In an expression like `COMPLEX op1 simple op2 simple ...` , `op1` must have **higher or equal precedence** than `op2`. Use this ordered list (from Highest to Lowest) to determine what is legal:
 
@@ -1295,22 +1298,49 @@ MEMORY STUFF
 - poke(A, byte)
 - deek(A) -> word          // ORIC ism! (word read)
 - doke(A, word)            // ORIC ism! (word write)
-- memcpy(CONST, CONST, const)  // const<256 => 14 B!
-- memcpy(X,X,X)            // inline    => 23 B
-```
 
-These basic functions from <ctype.h> can be generated inline:
+- memset(arr, const, const)   // inline 10 Bytes! (<256)
+- memset(EXPR, EXPR, EXPR)    // Generic: inline!
+- BZERO(ARR)                  // inline 10-26 Bytes!
+- BFILL(ARR, val)             // inline 10-28 Bytes!
+
+- memcpy(CONST, CONST, const) // const<256 => 14 B!
+- memcpy(X,X,X)               // inline    => 23 B
+
+
+Comparision of different "fill methods":
+(ARR is array >= 256 B, arr is < 256 B)
+
+  52 B:  i=0; do ARR[i++]=const; while(i<CONST);
+  41 B:  memset(ARR, expr, expr);
+  28 B:  BFILL(ARR, const);
+  26 B:  BZERO(ARR);
+  10 B:  BZERO(arr);                // bytes <256 !
+  10 B:  BFILL(arr, const);         // bytes <256 !
+  10 B:  memset(arr, const, const); // bytes <256 !
+
+
+equivalent C code:
+
+  #define BFILL(arr,val) memset(arr,val,sizeof(arr))
+  #define BZERO(arr)     BFILL(arr,0)
+```
+You may ask why many of these functions are inlined. One reason is to minimize overhead; if not needed then it won't be loaded minimizing library overhead! Second, as can be seen, if using fixed sizes or arrays directly which are < 256 bytes in size the generated inline code is 10 bytes only. Using a library; just the function call, if generic, would generate 24 bytes to pass 3 parameters and do an `jsr`. And that's not even considering the extra cycles by function call and crappier memory access methods.
+
+
+From <ctype.h>, the follwoing functions can be generated inline:
 ```
 CTYPE! (minimal)
-- isdigit()
-- isalpha()
-- isspace()
+- isdigit()              // inline 11 B
+- isalpha()              // inline 13 B
+- isspace()              // inlien 8  B
 ```
+That is slightly higher than using subroutines, however, if all of `<ctype.h>` would be included that would take about 100 bytes.
 
 A very simple malloc is inlined, basically just giving out memory directly after the program. No checks, and free() doesn't do anything/reclaim memory.
-
 ```
 STDLIB
+- xmalloc(X)               // gives pointer after code
 - malloc(X)                // gives pointer after code
 - free(X)                  // does nothing
 (these are like sbrk, just increase a pointer)
